@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./TsignUp.css";
 import Navbar from "../../components/Navbar";
 
-export default function TsignUp() {
+export default function Student() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -27,7 +27,7 @@ export default function TsignUp() {
   return (
     <div className="signup-container">
       <Navbar />
-      <h2 className="signup-title">Teacher Sign Up</h2>
+      <h2 className="signup-title">Student Sign Up</h2>
       <form onSubmit={handleSubmit} className="signup-form">
         <input
           type="text"

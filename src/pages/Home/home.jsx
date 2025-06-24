@@ -21,13 +21,13 @@ function App() {
             <div className="buttons">
               <button
                 className="teacher-btn"
-                onClick={() => navigate("/signup")}
+                onClick={() => navigate("/signupasTeacher")}
               >
                 Teacher
               </button>
               <button
                 className="student-btn"
-                onClick={() => navigate("/signup")}
+                onClick={() => navigate("/signupasStudent")}
               >
                 Student
               </button>
