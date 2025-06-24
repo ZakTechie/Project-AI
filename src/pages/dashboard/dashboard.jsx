@@ -166,30 +166,80 @@ const Dashboard = () => {
       </div>
 
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>Add New Course</h2>
-            <input
-              type="text"
-              name="name"
-              placeholder="Course Name"
-              value={newCourse.name}
-              onChange={handleCourseChange}
-            />
-            <input
-              type="text"
-              name="code"
-              placeholder="Course Code"
-              value={newCourse.code}
-              onChange={handleCourseChange}
-            />
+<div className="modal-overlay">
+  <div className="modal-box">
+    <h2 className="form-title">Add New Course</h2>
 
-            <div className="modal-actions">
-              <button onClick={handleAddCourse}>Save</button>
-              <button onClick={() => setShowModal(false)}>Cancel</button>
-            </div>
-          </div>
-        </div>
+    <div className="form-group">
+      <label className="form-label">Course Name</label>
+      <input
+        type="text"
+        name="name"
+        value={newCourse.name}
+        onChange={handleCourseChange}
+      />
+    </div>
+
+    <div className="form-group">
+      <label className="form-label">Course Code</label>
+      <input
+        type="text"
+        name="code"
+        value={newCourse.code}
+        onChange={handleCourseChange}
+      />
+    </div>
+
+    <div className="form-group">
+      <label className="form-label">Domain</label>
+      <input
+        type="text"
+        name="domain"
+        value={newCourse.domain}
+        onChange={handleCourseChange}
+      />
+    </div>
+
+    <div className="form-group">
+      <label className="form-label">Subdomain</label>
+      <input
+        type="text"
+        name="subdomin"
+        value={newCourse.subdomin}
+        onChange={handleCourseChange}
+      />
+    </div>
+
+    <div className="form-group">
+      <label className="form-label">Level</label>
+      <div className="level-options">
+        {["Beginner", "Median", "Advanced"].map((level) => (
+          <label
+            key={level}
+            className={`check-radio ${
+              newCourse.level === level ? "selected" : ""
+            }`}
+          >
+            <input
+              type="radio"
+              name="level"
+              value={level}
+              checked={newCourse.level === level}
+              onChange={handleCourseChange}
+            />
+            {level}
+          </label>
+        ))}
+      </div>
+    </div>
+
+    <div className="modal-actions">
+      <button className="gold-button" onClick={handleAddCourse}>Save</button>
+      <button className="gold-button" onClick={() => setShowModal(false)}>Cancel</button>
+    </div>
+  </div>
+</div>
+
       )}
     </div>
   );
