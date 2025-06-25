@@ -51,38 +51,7 @@ const initialRows = [
 ];
 
 const CoursePlanPage = () => {
-  const [rows, setRows] = useState(initialRows);
-
-  const handleChange = (index, field, value, subIndex) => {
-    const updated = [...rows];
-    if (subIndex !== undefined) {
-      updated[index][field][subIndex] = value;
-    } else {
-      updated[index][field] = value;
-    }
-    setRows(updated);
-  };
-
-  const swapSubtopics = (weekIndex1, subIndex1, weekIndex2, subIndex2) => {
-    const updated = [...rows];
-    const temp = updated[weekIndex1].subtopics[subIndex1];
-    updated[weekIndex1].subtopics[subIndex1] =
-      updated[weekIndex2].subtopics[subIndex2];
-    updated[weekIndex2].subtopics[subIndex2] = temp;
-    setRows(updated);
-  };
-
-  const moveSubtopicAcrossWeeks = (
-    fromWeekIdx,
-    fromSubIdx,
-    toWeekIdx,
-    toSubIdx
-  ) => {
-    const updated = [...rows];
-    const movedItem = updated[fromWeekIdx].subtopics.splice(fromSubIdx, 1)[0];
-    updated[toWeekIdx].subtopics.splice(toSubIdx, 0, movedItem);
-    setRows(updated);
-  };
+  const [rows] = useState(initialRows);
 
   const handlePrint = () => {
     console.log(rows);
@@ -90,7 +59,6 @@ const CoursePlanPage = () => {
 
   const handleActionClick = (type, weekIndex) => {
     console.log(`${type} clicked for week ${rows[weekIndex].week}`);
-    // يمكن هنا تفعيل مودال أو انتقال حسب الزر
   };
 
   return (
@@ -113,89 +81,16 @@ const CoursePlanPage = () => {
             {rows.map((row, idx) => (
               <tr key={idx}>
                 <td className="week-cell">Week {row.week}</td>
-                <td>
-                  <input
-                    type="text"
-                    value={row.lecName}
-                    onChange={(e) =>
-                      handleChange(idx, "lecName", e.target.value)
-                    }
-                    placeholder="Lecture name"
-                  />
-                </td>
+                <td>{row.lecName}</td>
                 <td className="subtopic-cell">
                   {row.subtopics.map((subtopic, subIdx) => (
                     <div key={subIdx} className="subtopic-row">
-                      <input
-                        type="text"
-                        value={subtopic}
-                        onChange={(e) =>
-                          handleChange(idx, "subtopics", e.target.value, subIdx)
-                        }
-                        placeholder="Subtopic"
-                      />
-                      <div className="subtopic-buttons">
-                        {(subIdx > 0 || idx > 0) && (
-                          <button
-                            onClick={() => {
-                              if (subIdx > 0) {
-                                swapSubtopics(idx, subIdx, idx, subIdx - 1);
-                              } else if (idx > 0) {
-                                moveSubtopicAcrossWeeks(
-                                  idx,
-                                  subIdx,
-                                  idx - 1,
-                                  rows[idx - 1].subtopics.length
-                                );
-                              }
-                            }}
-                            className="move-up-btn"
-                          >
-                            ↑
-                          </button>
-                        )}
-                        {(subIdx < row.subtopics.length - 1 ||
-                          idx < rows.length - 1) && (
-                          <button
-                            onClick={() => {
-                              if (subIdx < row.subtopics.length - 1) {
-                                swapSubtopics(idx, subIdx, idx, subIdx + 1);
-                              } else if (idx < rows.length - 1) {
-                                moveSubtopicAcrossWeeks(
-                                  idx,
-                                  subIdx,
-                                  idx + 1,
-                                  0
-                                );
-                              }
-                            }}
-                            className="move-down-btn"
-                          >
-                            ↓
-                          </button>
-                        )}
-                      </div>
+                      {subtopic}
                     </div>
                   ))}
                 </td>
-                <td>
-                  <input
-                    type="text"
-                    value={row.exams}
-                    onChange={(e) => handleChange(idx, "exams", e.target.value)}
-                    placeholder="Exam"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={row.activity}
-                    onChange={(e) =>
-                      handleChange(idx, "activity", e.target.value)
-                    }
-                    placeholder="Assignment or Project"
-                  />
-                </td>
+                <td>{row.exams}</td>
+                <td>{row.activity}</td>
                 <td>
                   <div className="actions-buttons">
                     <button
