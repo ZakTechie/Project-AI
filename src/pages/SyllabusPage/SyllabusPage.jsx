@@ -1,62 +1,40 @@
 import React, { useState, useEffect } from "react";
 import "./SyllabusPage.css";
-import { FaEdit, FaTrash, FaPlus, FaArrowUp, FaArrowDown } from "react-icons/fa";
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-
+import {
+  FaEdit,
+  FaTrash,
+  FaPlus,
+  FaArrowUp,
+  FaArrowDown,
+} from "react-icons/fa";
+import axios from "axios";
+import { useNavigate, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function SyllabusPage() {
+  const location = useLocation();
+  const syllabusData = location.state[0];
+
   const [syllabus, setSyllabus] = useState([]);
   const [expandedTopics, setExpandedTopics] = useState([]);
   const [newMainTopic, setNewMainTopic] = useState("");
   const [newSubTopic, setNewSubTopic] = useState("");
 
   useEffect(() => {
-    const mathForBeginnersSyllabus = {
-      course_id: 1,
-      course_name: "Math for Beginners",
-      syllabus: [
-        {
-          main_topic: "Introduction to Numbers",
-          subtopics: [
-            { subtopic: "What are numbers?" },
-            { subtopic: "Counting from 1 to 10" },
-            { subtopic: "Introduction to zero" },
-          ],
-        },
-        {
-          main_topic: "Basic Addition and Subtraction",
-          subtopics: [
-            { subtopic: "Adding numbers up to 10" },
-            { subtopic: "Subtracting numbers up to 10" },
-          ],
-        },
-        {
-          main_topic: "Shapes and Geometry",
-          subtopics: [
-            { subtopic: "Basic shapes (Circle, Square, Triangle)" },
-            { subtopic: "Introduction to symmetry" },
-            { subtopic: "How to measure angles" },
-          ],
-        },
-        {
-          main_topic: "Multiplication and Division",
-          subtopics: [
-            { subtopic: "Introduction to multiplication" },
-            { subtopic: "Introduction to division" },
-          ],
-        },
-      ],
-    };
-    setSyllabus(mathForBeginnersSyllabus.syllabus);
-  }, []);
+    if (syllabusData && syllabusData.topics) {
+      // تحويل الداتا إلى التنسيق المناسب
+      const formatted = syllabusData.topics.map((topic) => ({
+        "main-topic": topic["main-topic"], // تحويل key من "main-topic" إلى main_topic
+        subtopics: topic.subtopics.map((sub) => ({ subtopic: sub })), // تحويل من array of strings إلى array of objects
+      }));
+
+      setSyllabus(formatted);
+    }
+  }, [syllabusData]);
 
   const addMainTopic = () => {
     if (newMainTopic.trim()) {
-      setSyllabus([
-        ...syllabus,
-        { main_topic: newMainTopic, subtopics: [] },
-      ]);
+      setSyllabus([...syllabus, { "main-topic": newMainTopic, subtopics: [] }]);
       setNewMainTopic("");
     }
   };
@@ -77,7 +55,10 @@ function SyllabusPage() {
   };
 
   const editSubTopic = (mainIndex, subIndex) => {
-    const newSub = prompt("Edit subtopic", syllabus[mainIndex].subtopics[subIndex].subtopic);
+    const newSub = prompt(
+      "Edit subtopic",
+      syllabus[mainIndex].subtopics[subIndex].subtopic
+    );
     if (newSub !== null) {
       const updated = [...syllabus];
       updated[mainIndex].subtopics[subIndex].subtopic = newSub;
@@ -87,7 +68,7 @@ function SyllabusPage() {
 
   const toggleMainTopic = (index) => {
     if (expandedTopics.includes(index)) {
-      setExpandedTopics(expandedTopics.filter(i => i !== index));
+      setExpandedTopics(expandedTopics.filter((i) => i !== index));
     } else {
       setExpandedTopics([...expandedTopics, index]);
     }
@@ -99,7 +80,10 @@ function SyllabusPage() {
 
     const targetIndex = direction === "up" ? subIndex - 1 : subIndex + 1;
     if (targetIndex >= 0 && targetIndex < subtopics.length) {
-      [subtopics[subIndex], subtopics[targetIndex]] = [subtopics[targetIndex], subtopics[subIndex]];
+      [subtopics[subIndex], subtopics[targetIndex]] = [
+        subtopics[targetIndex],
+        subtopics[subIndex],
+      ];
       setSyllabus(updated);
     }
   };
@@ -107,19 +91,54 @@ function SyllabusPage() {
   const navigate = useNavigate();
 
   const submitData = async () => {
-    const data = {
-      course_id: 1,
-      syllabus: syllabus,
-    };
-  
+    const token = localStorage.getItem("token");
+    const syllabusDataID = location.state[1];
+
+    // ✨ إظهار سبينر التحميل
+    Swal.fire({
+      title: "Saving Syllabus...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
     try {
-      const response = await axios.post('/api/submit-syllabus', data);
-      console.log("Data submitted successfully", response);
-      
-      // بعد الإرسال بنجاح، توجيه المستخدم إلى الداشبورد
-      navigate('/dashboard');
+      await axios.post(
+        `http://localhost:3000/course/savesyllabus/${syllabusDataID}`,
+        {
+          syllabus: {
+            topics: syllabus.map((data) => ({
+              "main-topic": data["main-topic"],
+              subtopics: data.subtopics.map((sub) => {
+                return sub.subtopic;
+              }),
+            })),
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // ✅ بعد نجاح الحفظ
+      Swal.fire({
+        icon: "success",
+        title: "Syllabus saved successfully!",
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => navigate("/dashboard"));
     } catch (error) {
-      console.error("Error submitting data", error);
+      console.error("Error saving syllabus:", error);
+
+      // ❌ في حالة فشل
+      Swal.fire({
+        icon: "error",
+        title: "Failed to save syllabus",
+        text: error?.response?.data?.message || "Please try again later",
+      });
     }
   };
 
@@ -143,7 +162,7 @@ function SyllabusPage() {
 
         {syllabus.map((main, i) => (
           <div key={i} className="main-topic">
-            <h3 onClick={() => toggleMainTopic(i)}>{main.main_topic}</h3>
+            <h3 onClick={() => toggleMainTopic(i)}>{main["main-topic"]}</h3>
 
             {expandedTopics.includes(i) && (
               <>
@@ -166,10 +185,22 @@ function SyllabusPage() {
                       <span>{sub.subtopic}</span>
 
                       <div className="actions">
-                        <FaArrowUp onClick={() => swapSubtopics(i, j, "up")} className="icon" />
-                        <FaArrowDown onClick={() => swapSubtopics(i, j, "down")} className="icon" />
-                        <FaEdit onClick={() => editSubTopic(i, j)} className="icon edit" />
-                        <FaTrash onClick={() => deleteSubTopic(i, j)} className="icon delete" />
+                        <FaArrowUp
+                          onClick={() => swapSubtopics(i, j, "up")}
+                          className="icon"
+                        />
+                        <FaArrowDown
+                          onClick={() => swapSubtopics(i, j, "down")}
+                          className="icon"
+                        />
+                        <FaEdit
+                          onClick={() => editSubTopic(i, j)}
+                          className="icon edit"
+                        />
+                        <FaTrash
+                          onClick={() => deleteSubTopic(i, j)}
+                          className="icon delete"
+                        />
                       </div>
                     </li>
                   ))}

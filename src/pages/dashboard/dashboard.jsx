@@ -1,70 +1,109 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
 import "./dashboard.css";
 import Navbar from "../../components/Navbar";
-
-const dummyCourses = [
-  {
-    name: "Math",
-    code: "M101",
-    topics: [
-      { title: "Introduction to Numbers" },
-      { title: "Basic Addition and Subtraction" },
-      { title: "Shapes and Geometry" },
-      { title: "Multiplication and Division" },
-      { title: "Review and Reinforcement" },
-    ],
-  },
-  {
-    name: "Physics",
-    code: "P202",
-    topics: [{ title: "Mechanics" }],
-  },
-];
+import axios from "axios";
+import Swal from "sweetalert2";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [courses, setCourses] = useState(dummyCourses);
+  const [courses, setCourses] = useState([]);
   const [expandedCourse, setExpandedCourse] = useState(null);
   const [expandedTopic, setExpandedTopic] = useState(null);
-  const [selectedTitle, setSelectedTitle] = useState(null);
+  // const [selectedTitle, setSelectedTitle] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   const [newCourse, setNewCourse] = useState({
-    name: "",
-    code: "",
+    courseName: "",
+    courseCode: "",
+    domain: "",
+    subdomain: "",
+    level: "",
   });
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await axios.get("http://localhost:3000/course", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        // افترض إن الاستجابة عبارة عن مصفوفة من الكورسات
+        const formattedCourses = response.data.data.map((course) => ({
+          courseName: course.courseName,
+          courseCode: course.courseCode,
+          courseId: course._id,
+        }));
+
+        setCourses(formattedCourses);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   const toggleCourse = (index) => {
     setExpandedCourse(expandedCourse === index ? null : index);
     setExpandedTopic(null);
   };
 
-  const toggleTopic = (index) => {
-    setExpandedTopic(expandedTopic === index ? null : index);
-    setSelectedTitle(expandedTopic === index ? null : index);
-  };
+  // const toggleTopic = (index) => {
+  //   setExpandedTopic(expandedTopic === index ? null : index);
+  //   setSelectedTitle(expandedTopic === index ? null : index);
+  // };
 
-  const handleServiceClick = async (path) => {
-    if (path === "/syllabus") {
-      Swal.fire({
-        title: "Loading...",
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // بدلها بـ API call لو حابة
-
-      Swal.close();
-    }
-
+  const handleServiceClick = (path) => {
     navigate(path);
   };
+  // const handleServiceClick = async (path) => {
+  //   const token = localStorage.getItem("token");
+
+  //   // ✅ إظهار سبينر التحميل قبل الطلب
+  //   Swal.fire({
+  //     title: "Creating Syllabus...",
+  //     allowOutsideClick: false,
+  //     didOpen: () => {
+  //       Swal.showLoading();
+  //     },
+  //   });
+
+  //   try {
+  //     const response = await axios.post(
+  //       `http://localhost:3000/course/createSyllabus/${expandedCourse}`,
+  //       {},
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     // ✅ لو الطلب نجح، غيّر الرسالة إلى نجاح
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Syllabus created!",
+  //       showConfirmButton: false,
+  //       timer: 1500,
+  //     }).then(() =>
+  //       navigate(`${path}`, { state: [response.data.data, expandedCourse] })
+  //     ); // تقدر تمرر courseId في المسار لو عايز
+  //   } catch (error) {
+  //     console.error("Error creating syllabus:", error);
+
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Failed to create syllabus",
+  //       text: error?.response?.data?.message || "Please try again later",
+  //     });
+  //   }
+  // };
 
   const getAvailableServices = () => {
     if (expandedTopic !== null) {
@@ -122,13 +161,70 @@ const Dashboard = () => {
     setNewCourse({ ...newCourse, [name]: value });
   };
 
-  const handleAddCourse = () => {
-    if (newCourse.name && newCourse.code) {
-      setCourses([...courses, newCourse]);
-      setNewCourse({ name: "", code: "" });
-      setShowModal(false);
+  const handleAddCourse = async () => {
+    setShowModal(false);
+
+    if (newCourse.courseName && newCourse.courseCode) {
+      // إظهار سبينر التحميل
+      Swal.fire({
+        title: "Adding Course...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await axios.post(
+          "http://localhost:3000/course/add-course",
+          newCourse,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 200 || response.status === 201) {
+          setCourses([...courses, newCourse]);
+          setNewCourse({
+            courseName: "",
+            courseCode: "",
+            domain: "",
+            subdomain: "",
+            level: "",
+          });
+          setShowModal(false);
+
+          Swal.fire({
+            icon: "success",
+            title: "Course added successfully!",
+            showConfirmButton: false,
+            timer: 500,
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Something went wrong",
+            text: "Please try again.",
+          });
+        }
+      } catch (error) {
+        console.error("Error adding course:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Failed to add course",
+          text: "Course added before",
+        });
+      }
     } else {
-      alert("Please fill in course name and code.");
+      Swal.fire({
+        icon: "warning",
+        title: "Missing data",
+        text: "Please fill in course name and code.",
+      });
     }
   };
 
@@ -143,12 +239,15 @@ const Dashboard = () => {
             <p className="empty-message">No courses available</p>
           ) : (
             <ul>
-              {courses.map((course, i) => (
-                <li key={i} onClick={() => toggleCourse(i)}>
-                  {course.name} ({course.code})
-                  {expandedCourse === i && (
+              {courses.map((course) => (
+                <li
+                  key={course.courseId}
+                  onClick={() => toggleCourse(course.courseId)}
+                >
+                  {course.courseName} ({course.courseCode})
+                  {expandedCourse === course.courseId && (
                     <ul>
-                      {course.topics.map((topic, j) => (
+                      {/* {course.topics.map((topic, j) => (
                         <li
                           key={j}
                           onClick={(e) => {
@@ -161,7 +260,7 @@ const Dashboard = () => {
                         >
                           {topic.title}
                         </li>
-                      ))}
+                      ))} */}
                     </ul>
                   )}
                 </li>
@@ -190,8 +289,7 @@ const Dashboard = () => {
               <label className="form-label">Course Name</label>
               <input
                 type="text"
-                name="name"
-                value={newCourse.name}
+                name="courseName"
                 onChange={handleCourseChange}
               />
             </div>
@@ -200,28 +298,21 @@ const Dashboard = () => {
               <label className="form-label">Course Code</label>
               <input
                 type="text"
-                name="code"
-                value={newCourse.code}
+                name="courseCode"
                 onChange={handleCourseChange}
               />
             </div>
 
             <div className="form-group">
               <label className="form-label">Domain</label>
-              <input
-                type="text"
-                name="domain"
-                value={newCourse.domain}
-                onChange={handleCourseChange}
-              />
+              <input type="text" name="domain" onChange={handleCourseChange} />
             </div>
 
             <div className="form-group">
               <label className="form-label">Subdomain</label>
               <input
                 type="text"
-                name="subdomin"
-                value={newCourse.subdomin}
+                name="subdomain"
                 onChange={handleCourseChange}
               />
             </div>

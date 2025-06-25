@@ -1,19 +1,62 @@
+// frontend/src/pages/Login.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // استيراد useNavigate
+import { useNavigate } from "react-router-dom";
 import "./Login.css";
 import Navbar from "../../components/Navbar";
+import axios from "axios";
+import Swal from "sweetalert2";
 
 function Login({ setIsLoggedIn }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); // تعريف navigate
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // هنا بتأكد إن البيانات صحيحة
-    if (email && password) {
-      setIsLoggedIn(true); // تغيير حالة تسجيل الدخول
-      navigate("/dashboard"); // التوجيه إلى صفحة الـ Dashboard
+
+    try {
+      Swal.fire({
+        title: "Logging in...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await axios.post("http://localhost:3000/auth/login", {
+        email,
+        password,
+      });
+
+      if (response.status === 200) {
+        const { access_token } = response.data.data;
+
+        // تخزين التوكن والمستخدم
+        localStorage.setItem("token", access_token);
+
+        Swal.fire({
+          icon: "success",
+          title: "Login successful!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+
+        setIsLoggedIn(true);
+        navigate("/dashboard");
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Login failed",
+          text: "Invalid email or password.",
+        });
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Login falied",
+        text: "Invalid email or password.",
+      });
     }
   };
 
@@ -33,10 +76,10 @@ function Login({ setIsLoggedIn }) {
 
         <label>Password</label>
         <input
-          style={{ marginBottom: "15px" }}
           type="password"
           name="password"
           required
+          style={{ marginBottom: "15px" }}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
