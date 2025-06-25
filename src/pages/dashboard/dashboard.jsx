@@ -411,55 +411,77 @@ const Dashboard = () => {
         </div>
       )}
 
-      {showPlanModal && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h2 className="form-title">Generate Course Plan</h2>
+     {showPlanModal && (
+  <div className="modal-overlay">
+    <div className="modal-box">
+      <h2 className="form-title">Generate Course Plan</h2>
 
-            <div className="form-group">
-              <label className="form-label">Number of Weeks</label>
-              <input
-                type="number"
-                name="weeks"
-                value={planData.weeks}
-                onChange={(e) =>
-                  setPlanData({ ...planData, weeks: e.target.value })
-                }
-              />
-            </div>
+      <div className="form-group">
+        <label className="form-label">Number of Weeks</label>
+        <input
+          type="number"
+          name="weeks"
+          value={planData.weeks}
+          onChange={(e) =>
+            setPlanData({ ...planData, weeks: e.target.value })
+          }
+        />
+      </div>
 
-            <div className="form-group">
-              <label className="form-label">Lectures per Week</label>
-              <input
-                type="number"
-                name="lecturesPerWeek"
-                value={planData.lecturesPerWeek}
-                onChange={(e) =>
-                  setPlanData({ ...planData, lecturesPerWeek: e.target.value })
-                }
-              />
-            </div>
+      <div className="form-group">
+        <label className="form-label">Lectures per Week</label>
+        <input
+          type="number"
+          name="lecturesPerWeek"
+          value={planData.lecturesPerWeek}
+          onChange={(e) =>
+            setPlanData({ ...planData, lecturesPerWeek: e.target.value })
+          }
+        />
+      </div>
 
-            <div className="modal-actions">
-              <button
-                className="gold-button"
-                onClick={() => {
-                  console.log("Generating plan with:", planData);
-                  setShowPlanModal(false);
-                }}
-              >
-                Generate
-              </button>
-              <button
-                className="gold-button"
-                onClick={() => setShowPlanModal(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="modal-actions">
+        <button
+          className="gold-button"
+          onClick={() => {
+            if (!planData.weeks || !planData.lecturesPerWeek) {
+              Swal.fire({
+                icon: "warning",
+                title: "Please fill all fields",
+              });
+              return;
+            }
+
+            setShowPlanModal(false);
+
+            Swal.fire({
+              title: "Generating...",
+              allowOutsideClick: false,
+              didOpen: () => {
+                Swal.showLoading();
+              },
+            });
+
+            setTimeout(() => {
+              Swal.close();
+              navigate("/plan");
+            }, 1000);
+          }}
+        >
+          Generate
+        </button>
+
+        <button
+          className="gold-button"
+          onClick={() => setShowPlanModal(false)}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
