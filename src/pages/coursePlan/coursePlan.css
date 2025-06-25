@@ -1,107 +1,120 @@
 /* حاوية الصفحة */
 .course-plan-container {
-    margin: 40px auto;
-    background: #fafafa; /* خلفية خفيفة */
-    padding: 24px;
-    border-radius: 8px;
-    font-family: sans-serif;
-    width: 100vw;
-    height: 100vh;
-    justify-content: center;
-    align-items: center;
-    max-height: 100vh;
-    overflow-y: auto;
-    padding: 20px;
-  }
-  
-  /* عنوان الصفحة */
-  .course-plan-title {
-    text-align: center;
-    font-size: 24px;
-    color: #3b4cca; /* أزرق داكن مطابق للصورة */
-    margin-bottom: 24px;
-  }
-  
-  /* لف الجدول بالسكل الصحيح */
-  .table-wrapper {
-    overflow-x: auto;
-  }
-  
-  /* الجدول الرئيسي */
-  .course-plan-table {
-    /* max-width: 800px; */
-    border-collapse: collapse;
-    background: #ffffff;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border-radius: 4px;
-    overflow: hidden;
-    justify-content: center;
-  }
-  
-  /* رؤوس الأعمدة */
-  .course-plan-table thead tr {
-    background: #f3f3f3; /* رمادي خفيف */
-  }
-  
-  .course-plan-table th,
-  .course-plan-table td {
-    border: 1px solid #e0e0e0;
-    padding: 12px;
-    text-align: center;
-    font-size: 14px;
-    color: #555555;
-  }
-  
-  /* رأس بخط عريض */
-  .course-plan-table th.bold {
-    font-weight: 600;
-    color: #333333;
-  }
-  
-  /* خلية رقم الأسبوع */
-  .week-cell {
-    background: #fafafa;
-    font-weight: bold;
-  }
-  
-  /* حقول الإدخال */
-  .course-plan-table td input {
-    width: 100%;
-    border: 1px solid #ccc;
-    padding: 6px 8px;
-    border-radius: 4px;
-    font-size: 14px;
-    outline: none;
-  }
-  
-  .course-plan-table td input:focus {
-    border-color: #6c63ff; /* بنفسج فاتح عند التركيز */
-    box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
-  }
-  
-  /* زر Next */
-  .next-button-wrapper {
-    text-align: center;
-    margin-top: 32px;
-  }
-  
-  .next-button {
-    background: #ffc107; /* أصفر مطابق */
-    color: #ffffff;
-    padding: 10px 24px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.2s ease-in-out;
-  }
-  
-  .next-button:hover {
-    background: #ffb300;
-  }
+  margin: 40px auto;
+  background: #fafafa; /* خلفية خفيفة */
+  padding: 24px;
+  border-radius: 8px;
+  font-family: sans-serif;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+  max-height: 100vh;
+  overflow-y: auto;
+  padding: 20px;
+}
 
-  /* تعديل شكل خانة السب توبيكس */
+/* عنوان الصفحة */
+.course-plan-title {
+  text-align: center;
+  font-size: 24px;
+  color: #3b4cca; /* أزرق داكن مطابق للصورة */
+  margin-bottom: 24px;
+}
+
+/* لف الجدول بالسكل الصحيح */
+.table-wrapper {
+  overflow-x: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* الجدول الرئيسي */
+.course-plan-table {
+  /* max-width: 800px; */
+  border-collapse: collapse;
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  justify-content: center;
+}
+
+/* رؤوس الأعمدة */
+.course-plan-table thead tr {
+  background: #f3f3f3; /* رمادي خفيف */
+}
+
+.course-plan-table th,
+.course-plan-table td {
+  border: 1px solid #e0e0e0;
+  padding: 12px;
+  text-align: center;
+  font-size: 14px;
+  color: #555555;
+}
+
+/* رأس بخط عريض */
+.course-plan-table th.bold {
+  font-weight: 600;
+  color: #333333;
+}
+
+/* خلية رقم الأسبوع */
+.week-cell {
+  background: #fafafa;
+  font-weight: bold;
+}
+
+/* حقول الإدخال */
+.course-plan-table td input {
+  width: 100%;
+  border: 1px solid #ccc;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+
+.course-plan-table td input:focus {
+  border-color: #6c63ff; /* بنفسج فاتح عند التركيز */
+  box-shadow: 0 0 0 2px rgba(108, 99, 255, 0.2);
+}
+
+.button-group {
+  margin-top: 10px;
+  margin-left: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+/* زر Next */
+.next-button-wrapper {
+  text-align: center;
+  margin-top: 32px;
+}
+
+.next-button {
+  background: #ffc107; /* أصفر مطابق */
+  color: #ffffff;
+  padding: 10px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.next-button:nth-child(2) {
+  margin-left: 10px;
+}
+.next-button:hover {
+  background: #ffb300;
+}
+
+/* تعديل شكل خانة السب توبيكس */
 .subtopic-cell {
   position: relative;
   padding-top: 24px;
@@ -141,7 +154,6 @@
   color: #cc0000;
   margin-left: 8px;
 }
-
 
 .add-subtopic-container {
   text-align: left;

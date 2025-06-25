@@ -23,12 +23,10 @@ const Dashboard = () => {
   });
 
   const [showPlanModal, setShowPlanModal] = useState(false);
-const [planData, setPlanData] = useState({
-  weeks: "",
-  lecturesPerWeek: "",
-});
-
-
+  const [planData, setPlanData] = useState({
+    weeks: "",
+    lecturesPerWeek: "",
+  });
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -68,56 +66,53 @@ const [planData, setPlanData] = useState({
   // };
 
   const handleServiceClick = (path) => {
-  if (path === "/plan") {
-    setShowPlanModal(true);
-  } else {
-    navigate(path);
-  }
-};
+    if (path === "/plan") {
+      setShowPlanModal(true);
+    }
+  };
 
+  const handleServiceClick1 = async (path) => {
+    const token = localStorage.getItem("token");
 
-  // const handleServiceClick = async (path) => {
-  //   const token = localStorage.getItem("token");
+    // ✅ إظهار سبينر التحميل قبل الطلب
+    Swal.fire({
+      title: "Creating Syllabus...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
 
-  //   // ✅ إظهار سبينر التحميل قبل الطلب
-  //   Swal.fire({
-  //     title: "Creating Syllabus...",
-  //     allowOutsideClick: false,
-  //     didOpen: () => {
-  //       Swal.showLoading();
-  //     },
-  //   });
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/course/createSyllabus/${expandedCourse}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-  //   try {
-  //     const response = await axios.post(
-  //       `http://localhost:3000/course/createSyllabus/${expandedCourse}`,
-  //       {},
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
+      // ✅ لو الطلب نجح، غيّر الرسالة إلى نجاح
+      Swal.fire({
+        icon: "success",
+        title: "Syllabus created!",
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() =>
+        navigate(`${path}`, { state: [response.data.data, expandedCourse] })
+      ); // تقدر تمرر courseId في المسار لو عايز
+    } catch (error) {
+      console.error("Error creating syllabus:", error);
 
-  //     // ✅ لو الطلب نجح، غيّر الرسالة إلى نجاح
-  //     Swal.fire({
-  //       icon: "success",
-  //       title: "Syllabus created!",
-  //       showConfirmButton: false,
-  //       timer: 1500,
-  //     }).then(() =>
-  //       navigate(`${path}`, { state: [response.data.data, expandedCourse] })
-  //     ); // تقدر تمرر courseId في المسار لو عايز
-  //   } catch (error) {
-  //     console.error("Error creating syllabus:", error);
-
-  //     Swal.fire({
-  //       icon: "error",
-  //       title: "Failed to create syllabus",
-  //       text: error?.response?.data?.message || "Please try again later",
-  //     });
-  //   }
-  // };
+      Swal.fire({
+        icon: "error",
+        title: "Failed to create syllabus",
+        text: error?.response?.data?.message || "Please try again later",
+      });
+    }
+  };
 
   const getAvailableServices = () => {
     if (expandedTopic !== null) {
@@ -142,16 +137,16 @@ const [planData, setPlanData] = useState({
         <>
           <div
             className="service-card"
-            onClick={() => handleServiceClick("/syllabus")}
+            onClick={() => handleServiceClick1("/syllabus")}
           >
             📖<p>Generate a course syllabus</p>
           </div>
           <div
-  className="service-card"
-  onClick={() => handleServiceClick("/plan")}
->
-  ✏️<p>Generate a course plan</p>
-</div>
+            className="service-card"
+            onClick={() => handleServiceClick("/plan")}
+          >
+            ✏️<p>Generate a course plan</p>
+          </div>
 
           <div
             className="service-card"
@@ -244,20 +239,19 @@ const [planData, setPlanData] = useState({
   };
 
   const handleDeleteCourse = async (id) => {
-  try {
-await axios.delete(`http://localhost:3000/course/${id}`, {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-  },
-});
-    setCourses((prevCourses) =>
-      prevCourses.filter((course) => course.courseId !== id)
-    );
-  } catch (err) {
-    console.error("Error deleting course", err);
-  }
-};
-
+    try {
+      await axios.delete(`http://localhost:3000/course/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      setCourses((prevCourses) =>
+        prevCourses.filter((course) => course.courseId !== id)
+      );
+    } catch (err) {
+      console.error("Error deleting course", err);
+    }
+  };
 
   return (
     <div className="dashboard-container">
@@ -275,30 +269,38 @@ await axios.delete(`http://localhost:3000/course/${id}`, {
                   key={course.courseId}
                   onClick={() => toggleCourse(course.courseId)}
                 >
-                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-  <span>
-    {course.courseName} ({course.courseCode})
-  </span>
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <span>
+                      {course.courseName} ({course.courseCode.slice(0, 6)})
+                    </span>
 
-  <svg
-    onClick={(e) => {
-      e.stopPropagation();
-      handleDeleteCourse(course.courseId);
-    }}
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    fill="white"
-    viewBox="0 0 16 16"
-    style={{ cursor: 'pointer', marginLeft: '8px' }}
-    title="حذف"
-  >
-    <path d="M5.5 5.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0v-6a.5.5 0 0 1 .5-.5zm2.5.5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0v-6zm1.5-.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0v-6a.5.5 0 0 1 .5-.5z"/>
-    <path fillRule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1 0-2h3.086a1 1 0 0 1 .707.293l.707.707h2.586l.707-.707A1 1 0 0 1 9.414 1H12.5a1 1 0 0 1 1 1v1h1a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1h-11z"/>
-  </svg>
-</span>
+                    <svg
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteCourse(course.courseId);
+                      }}
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="16"
+                      height="16"
+                      fill="white"
+                      viewBox="0 0 16 16"
+                      style={{ cursor: "pointer", marginLeft: "8px" }}
+                      title="حذف"
+                    >
+                      <path d="M5.5 5.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0v-6a.5.5 0 0 1 .5-.5zm2.5.5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0v-6zm1.5-.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0v-6a.5.5 0 0 1 .5-.5z" />
+                      <path
+                        fillRule="evenodd"
+                        d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1 0-2h3.086a1 1 0 0 1 .707.293l.707.707h2.586l.707-.707A1 1 0 0 1 9.414 1H12.5a1 1 0 0 1 1 1v1h1a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1h-11z"
+                      />
+                    </svg>
+                  </span>
 
-                  
                   {expandedCourse === course.courseId && (
                     <ul>
                       {/* {course.topics.map((topic, j) => (
@@ -317,7 +319,6 @@ await axios.delete(`http://localhost:3000/course/${id}`, {
                       ))} */}
                     </ul>
                   )}
-                  
                 </li>
               ))}
             </ul>
@@ -411,56 +412,54 @@ await axios.delete(`http://localhost:3000/course/${id}`, {
       )}
 
       {showPlanModal && (
-  <div className="modal-overlay">
-    <div className="modal-box">
-      <h2 className="form-title">Generate Course Plan</h2>
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h2 className="form-title">Generate Course Plan</h2>
 
-      <div className="form-group">
-        <label className="form-label">Number of Weeks</label>
-        <input
-          type="number"
-          name="weeks"
-          value={planData.weeks}
-          onChange={(e) =>
-            setPlanData({ ...planData, weeks: e.target.value })
-          }
-        />
-      </div>
+            <div className="form-group">
+              <label className="form-label">Number of Weeks</label>
+              <input
+                type="number"
+                name="weeks"
+                value={planData.weeks}
+                onChange={(e) =>
+                  setPlanData({ ...planData, weeks: e.target.value })
+                }
+              />
+            </div>
 
-      <div className="form-group">
-        <label className="form-label">Lectures per Week</label>
-        <input
-          type="number"
-          name="lecturesPerWeek"
-          value={planData.lecturesPerWeek}
-          onChange={(e) =>
-            setPlanData({ ...planData, lecturesPerWeek: e.target.value })
-          }
-        />
-      </div>
+            <div className="form-group">
+              <label className="form-label">Lectures per Week</label>
+              <input
+                type="number"
+                name="lecturesPerWeek"
+                value={planData.lecturesPerWeek}
+                onChange={(e) =>
+                  setPlanData({ ...planData, lecturesPerWeek: e.target.value })
+                }
+              />
+            </div>
 
-      <div className="modal-actions">
-        <button
-          className="gold-button"
-          onClick={() => {
-            console.log("Generating plan with:", planData);
-            setShowPlanModal(false);
-          }}
-        >
-          Generate
-        </button>
-        <button
-          className="gold-button"
-          onClick={() => setShowPlanModal(false)}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
+            <div className="modal-actions">
+              <button
+                className="gold-button"
+                onClick={() => {
+                  console.log("Generating plan with:", planData);
+                  setShowPlanModal(false);
+                }}
+              >
+                Generate
+              </button>
+              <button
+                className="gold-button"
+                onClick={() => setShowPlanModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
