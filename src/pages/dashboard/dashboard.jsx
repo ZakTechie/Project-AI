@@ -24,8 +24,8 @@ const Dashboard = () => {
 
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [planData, setPlanData] = useState({
-    weeks: "",
-    lecturesPerWeek: "",
+    numberOfWeeks: "",
+    lecsPerWeek: "",
   });
 
   useEffect(() => {
@@ -64,12 +64,6 @@ const Dashboard = () => {
   //   setExpandedTopic(expandedTopic === index ? null : index);
   //   setSelectedTitle(expandedTopic === index ? null : index);
   // };
-
-  const handleServiceClick = (path) => {
-    if (path === "/plan") {
-      setShowPlanModal(true);
-    }
-  };
 
   const handleServiceClick1 = async (path) => {
     const token = localStorage.getItem("token");
@@ -114,6 +108,10 @@ const Dashboard = () => {
     }
   };
 
+  const handleServiceClick = (path) => {
+    navigate(path);
+  };
+
   const getAvailableServices = () => {
     if (expandedTopic !== null) {
       return (
@@ -141,10 +139,7 @@ const Dashboard = () => {
           >
             📖<p>Generate a course syllabus</p>
           </div>
-          <div
-            className="service-card"
-            onClick={() => handleServiceClick("/plan")}
-          >
+          <div className="service-card" onClick={() => setShowPlanModal(true)}>
             ✏️<p>Generate a course plan</p>
           </div>
 
@@ -152,7 +147,7 @@ const Dashboard = () => {
             className="service-card"
             onClick={() => handleServiceClick("/exam-generator")}
           >
-            📄<p>Generate an exam/Assignment</p>
+            📄<p>Generate an exam</p>
           </div>
           <div
             className="service-card"
@@ -164,6 +159,55 @@ const Dashboard = () => {
       );
     }
     return null;
+  };
+
+  const handleMakePlan = async () => {
+    if (!planData.numberOfWeeks || !planData.lecsPerWeek) {
+      Swal.fire({
+        icon: "warning",
+        title: "Please fill all fields",
+      });
+      return;
+    }
+
+    setShowPlanModal(false);
+
+    Swal.fire({
+      title: "Generating Plan...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `http://localhost:3000/course/createPlan/${expandedCourse}`,
+        planData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Plan created successfully!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      navigate("/plan", { state: [response.data.data, expandedCourse] }); // send the generated plan to next page
+    } catch (error) {
+      console.error("Error generating plan:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Failed to generate plan",
+        text: error?.response?.data?.message || "Please try again later.",
+      });
+    }
   };
 
   const handleCourseChange = (e) => {
@@ -411,77 +455,50 @@ const Dashboard = () => {
         </div>
       )}
 
-     {showPlanModal && (
-  <div className="modal-overlay">
-    <div className="modal-box">
-      <h2 className="form-title">Generate Course Plan</h2>
+      {showPlanModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h2 className="form-title">Generate Course Plan</h2>
 
-      <div className="form-group">
-        <label className="form-label">Number of Weeks</label>
-        <input
-          type="number"
-          name="weeks"
-          value={planData.weeks}
-          onChange={(e) =>
-            setPlanData({ ...planData, weeks: e.target.value })
-          }
-        />
-      </div>
+            <div className="form-group">
+              <label className="form-label">Number of Weeks</label>
+              <input
+                type="number"
+                name="numberOfWeeks"
+                value={planData.numberOfWeeks}
+                onChange={(e) =>
+                  setPlanData({ ...planData, numberOfWeeks: e.target.value })
+                }
+              />
+            </div>
 
-      <div className="form-group">
-        <label className="form-label">Lectures per Week</label>
-        <input
-          type="number"
-          name="lecturesPerWeek"
-          value={planData.lecturesPerWeek}
-          onChange={(e) =>
-            setPlanData({ ...planData, lecturesPerWeek: e.target.value })
-          }
-        />
-      </div>
+            <div className="form-group">
+              <label className="form-label">Lectures per Week</label>
+              <input
+                type="number"
+                name="lecsPerWeek"
+                value={planData.lecsPerWeek}
+                onChange={(e) =>
+                  setPlanData({ ...planData, lecsPerWeek: e.target.value })
+                }
+              />
+            </div>
 
-      <div className="modal-actions">
-        <button
-          className="gold-button"
-          onClick={() => {
-            if (!planData.weeks || !planData.lecturesPerWeek) {
-              Swal.fire({
-                icon: "warning",
-                title: "Please fill all fields",
-              });
-              return;
-            }
+            <div className="modal-actions">
+              <button className="gold-button" onClick={() => handleMakePlan()}>
+                Generate
+              </button>
 
-            setShowPlanModal(false);
-
-            Swal.fire({
-              title: "Generating...",
-              allowOutsideClick: false,
-              didOpen: () => {
-                Swal.showLoading();
-              },
-            });
-
-            setTimeout(() => {
-              Swal.close();
-              navigate("/plan");
-            }, 1000);
-          }}
-        >
-          Generate
-        </button>
-
-        <button
-          className="gold-button"
-          onClick={() => setShowPlanModal(false)}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
+              <button
+                className="gold-button"
+                onClick={() => setShowPlanModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

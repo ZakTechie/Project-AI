@@ -42,7 +42,7 @@ function Login({ setIsLoggedIn }) {
         });
 
         setIsLoggedIn(true);
-        navigate("/dashboard");
+        navigate("/dashboard", { replace: true });
       } else {
         Swal.fire({
           icon: "error",
