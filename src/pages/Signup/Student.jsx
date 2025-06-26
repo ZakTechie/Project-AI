@@ -2,15 +2,17 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./TsignUp.css";
 import Navbar from "../../components/Navbar";
-
+import axios from "axios";
+import Swal from "sweetalert2";
 export default function Student() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    dob: "",
+    DOB: "",
     gender: "",
     learningStyle: {
       active: "",
@@ -18,6 +20,7 @@ export default function Student() {
       verbal: "",
       sequential: "",
     },
+    role: "student",
   });
 
   const handleChange = (e) => {
@@ -34,10 +37,48 @@ export default function Student() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Student Sign Up Data:", formData);
-    // ممكن تضيفي منطق التسجيل الحقيقي هنا
+
+    const finalData = {
+      ...formData,
+      learningStyle: Object.values(formData.learningStyle),
+    };
+
+    // ✅ إظهار سبينر تحميل
+    Swal.fire({
+      title: "Signing up...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/auth/signup",
+        finalData
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Registered successfully!",
+        text: "You can now log in.",
+        showConfirmButton: true,
+      });
+
+      console.log("✅ Registered:", response.data);
+      // يمكنك هنا توجيه المستخدم للـ login page:
+      navigate("/login");
+    } catch (error) {
+      console.error("❌ Signup error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Signup failed",
+        text:
+          error?.response?.data?.message || "Something went wrong. Try again.",
+      });
+    }
   };
 
   return (
@@ -45,18 +86,60 @@ export default function Student() {
       <Navbar />
       <h2 className="signup-title">Student Sign Up</h2>
       <form onSubmit={handleSubmit} className="signup-form">
-        <input type="text" name="name" placeholder="Name" required onChange={handleChange} />
-        <input type="email" name="email" placeholder="Email" required onChange={handleChange} />
-        <input type="password" name="password" placeholder="Password" required onChange={handleChange} />
-        <input type="password" name="confirmPassword" placeholder="Confirm Password" required onChange={handleChange} />
-        <input type="date" name="dob" required onChange={handleChange} />
-
+        <input
+          type="text"
+          name="firstName"
+          placeholder="First Name"
+          required
+          onChange={handleChange}
+        />
+        <input
+          type="text"
+          name="lastName"
+          placeholder="Last Name"
+          required
+          onChange={handleChange}
+        />
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          required
+          onChange={handleChange}
+        />
+        <input
+          type="password"
+          name="password"
+          placeholder="Password"
+          required
+          onChange={handleChange}
+        />
+        <input
+          type="password"
+          name="confirmPassword"
+          placeholder="Confirm Password"
+          required
+          onChange={handleChange}
+        />
+        <input type="date" name="DOB" required onChange={handleChange} />
         <div className="gender-group">
           <label>
-            <input type="radio" name="gender" value="Male" onChange={handleChange} /> Male
+            <input
+              type="radio"
+              name="gender"
+              value="male"
+              onChange={handleChange}
+            />{" "}
+            Male
           </label>
           <label>
-            <input type="radio" name="gender" value="Female" onChange={handleChange} /> Female
+            <input
+              type="radio"
+              name="gender"
+              value="female"
+              onChange={handleChange}
+            />{" "}
+            Female
           </label>
         </div>
 
@@ -82,7 +165,9 @@ export default function Student() {
                   type="radio"
                   name="activeReflective"
                   value="reflective"
-                  onChange={() => handleLearningStyleChange("active", "reflective")}
+                  onChange={() =>
+                    handleLearningStyleChange("active", "reflective")
+                  }
                   checked={formData.learningStyle.active === "reflective"}
                 />
                 Reflective
@@ -94,7 +179,9 @@ export default function Student() {
                   type="radio"
                   name="intuitiveSensor"
                   value="intuitive"
-                  onChange={() => handleLearningStyleChange("intuitive", "intuitive")}
+                  onChange={() =>
+                    handleLearningStyleChange("intuitive", "intuitive")
+                  }
                   checked={formData.learningStyle.intuitive === "intuitive"}
                 />
                 Intuitive
@@ -104,7 +191,9 @@ export default function Student() {
                   type="radio"
                   name="intuitiveSensor"
                   value="sensor"
-                  onChange={() => handleLearningStyleChange("intuitive", "sensor")}
+                  onChange={() =>
+                    handleLearningStyleChange("intuitive", "sensor")
+                  }
                   checked={formData.learningStyle.intuitive === "sensor"}
                 />
                 Sensor
@@ -138,7 +227,9 @@ export default function Student() {
                   type="radio"
                   name="sequentialGlobal"
                   value="sequential"
-                  onChange={() => handleLearningStyleChange("sequential", "sequential")}
+                  onChange={() =>
+                    handleLearningStyleChange("sequential", "sequential")
+                  }
                   checked={formData.learningStyle.sequential === "sequential"}
                 />
                 Sequential
@@ -148,7 +239,9 @@ export default function Student() {
                   type="radio"
                   name="sequentialGlobal"
                   value="global"
-                  onChange={() => handleLearningStyleChange("sequential", "global")}
+                  onChange={() =>
+                    handleLearningStyleChange("sequential", "global")
+                  }
                   checked={formData.learningStyle.sequential === "global"}
                 />
                 Global

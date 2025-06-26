@@ -11,7 +11,8 @@ const Dashboard = () => {
   const [courses, setCourses] = useState([]);
   const [expandedCourse, setExpandedCourse] = useState(null);
   const [expandedTopic, setExpandedTopic] = useState(null);
-  // const [selectedTitle, setSelectedTitle] = useState(null);
+  const [selectedTitle, setSelectedTitle] = useState(null);
+  const [title, setTitle] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
   const [newCourse, setNewCourse] = useState({
@@ -45,25 +46,58 @@ const Dashboard = () => {
           courseCode: course.courseCode,
           courseId: course._id,
         }));
-
         setCourses(formattedCourses);
       } catch (error) {
         console.error("Error fetching courses:", error);
       }
     };
-
     fetchCourses();
   }, []);
 
-  const toggleCourse = (index) => {
-    setExpandedCourse(expandedCourse === index ? null : index);
-    setExpandedTopic(null);
+  // const toggleCourse = (index) => {
+  //   setExpandedCourse(expandedCourse === index ? null : index);
+  //   setExpandedTopic(null);
+  // };
+
+  const toggleCourse = async (index) => {
+    if (expandedCourse === index) {
+      setExpandedCourse(null);
+      setExpandedTopic(null);
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await axios.get(
+        `http://localhost:3000/course/coursePlan/${index}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Fetched course plan:", response.data.data.teachingPlan);
+      setTitle(response.data.data.teachingPlan);
+      setExpandedCourse(index);
+      setExpandedTopic(null);
+      // optional: store coursePlan in state
+    } catch (error) {
+      console.error("Error fetching course plan:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Failed to fetch course plan",
+        text: error?.response?.data?.message || "Please try again later.",
+      });
+    }
   };
 
-  // const toggleTopic = (index) => {
-  //   setExpandedTopic(expandedTopic === index ? null : index);
-  //   setSelectedTitle(expandedTopic === index ? null : index);
-  // };
+  const toggleTopic = (index) => {
+    setExpandedTopic(expandedTopic === index ? null : index);
+    setSelectedTitle(expandedTopic === index ? null : index);
+    console.log(index);
+  };
 
   const handleServiceClick1 = async (path) => {
     const token = localStorage.getItem("token");
@@ -198,7 +232,6 @@ const Dashboard = () => {
         showConfirmButton: false,
         timer: 1500,
       });
-
       navigate("/plan", { state: [response.data.data, expandedCourse] }); // send the generated plan to next page
     } catch (error) {
       console.error("Error generating plan:", error);
@@ -347,7 +380,7 @@ const Dashboard = () => {
 
                   {expandedCourse === course.courseId && (
                     <ul>
-                      {/* {course.topics.map((topic, j) => (
+                      {title.map((topic, j) => (
                         <li
                           key={j}
                           onClick={(e) => {
@@ -358,9 +391,9 @@ const Dashboard = () => {
                             selectedTitle === j ? "selected-title" : ""
                           }
                         >
-                          {topic.title}
+                          {topic.LectureName}
                         </li>
-                      ))} */}
+                      ))}
                     </ul>
                   )}
                 </li>
