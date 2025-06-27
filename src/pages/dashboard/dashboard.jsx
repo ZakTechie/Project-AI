@@ -77,7 +77,6 @@ const Dashboard = () => {
           },
         }
       );
-
       console.log("Fetched course plan:", response.data.data.teachingPlan);
       setTitle(response.data.data.teachingPlan);
       setExpandedCourse(index);
@@ -90,6 +89,9 @@ const Dashboard = () => {
         title: "Failed to fetch course plan",
         text: error?.response?.data?.message || "Please try again later.",
       });
+      setExpandedCourse(index);
+      setExpandedTopic(null);
+      setTitle([]);
     }
   };
 
@@ -380,20 +382,33 @@ const Dashboard = () => {
 
                   {expandedCourse === course.courseId && (
                     <ul>
-                      {title.map((topic, j) => (
-                        <li
-                          key={j}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleTopic(j);
-                          }}
-                          className={
-                            selectedTitle === j ? "selected-title" : ""
-                          }
-                        >
-                          {topic.LectureName}
-                        </li>
-                      ))}
+                      {title.map((topic, j) =>
+                        title.length > 0 ? (
+                          <li
+                            key={j}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleTopic(j);
+                            }}
+                            className={
+                              selectedTitle === j ? "selected-title" : ""
+                            }
+                          >
+                            {topic.LectureName}
+                          </li>
+                        ) : (
+                          <li
+                            key={j}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleTopic(j);
+                            }}
+                            className={
+                              selectedTitle === j ? "selected-title" : ""
+                            }
+                          ></li>
+                        )
+                      )}
                     </ul>
                   )}
                 </li>

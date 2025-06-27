@@ -30,7 +30,7 @@ function Login({ setIsLoggedIn }) {
 
       if (response.status === 200) {
         const { access_token } = response.data.data;
-
+        const { role } = response.data.data;
         // تخزين التوكن والمستخدم
         localStorage.setItem("token", access_token);
 
@@ -42,6 +42,8 @@ function Login({ setIsLoggedIn }) {
         });
 
         setIsLoggedIn(true);
+        console.log(role);
+
         navigate("/dashboard", { replace: true });
       } else {
         Swal.fire({
