@@ -173,14 +173,16 @@ const [examData, setExamData] = useState({
             👥<p>Generate a lesson content</p>
           </div>
           <div
-            className="service-card"
-            onClick={() => handleServiceClick("/exam-generator")}
-          >
-            📄<p>Generate an Assignment</p>
-          </div>
+  className="service-card"
+  onClick={() => handleServiceClick("/assignment")}
+>
+  📄<p>Generate an Assignment</p>
+</div>
+
+
           <div
             className="service-card"
-            onClick={() => handleServiceClick("/project-details")}
+            onClick={() => handleServiceClick("/activityShow")}
           >
             ⚗️<p>Generate Lesson activities</p>
           </div>
@@ -209,7 +211,7 @@ const [examData, setExamData] = useState({
 
           <div
             className="service-card"
-            onClick={() => handleServiceClick("/project-details")}
+            onClick={() => handleServiceClick("/activityShow")}
           >
             ⚗️<p>Generate course activities</p>
           </div>
