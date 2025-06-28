@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import './CourseContentPage.css';
-import { FaFilePowerpoint, FaVideo, FaVolumeUp } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import "./CourseContentPage.css";
+import { FaFilePowerpoint, FaVideo, FaVolumeUp } from "react-icons/fa";
 
 const CourseContentPage = () => {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [editedContent, setEditedContent] = useState('');
+  const [editedContent, setEditedContent] = useState("");
 
   useEffect(() => {
     const courseContent = `# Introduction to Numbers
@@ -83,13 +83,38 @@ Now that we know how to count, let's see how we can compare numbers.
   };
 
   const renderContent = () => {
-    return content.split('\n').map((line, i) => {
-      if (line.startsWith('# ')) return <p key={i} className="main-title">{line.replace('# ', '')}</p>;
-      if (line.startsWith('## ')) return <p key={i} className="subheading">{line.replace('## ', '')}</p>;
-      if (line.startsWith('### ')) return <p key={i} className="sub-subheading">{line.replace('### ', '')}</p>;
-      if (line.startsWith('#### ')) return <p key={i} className="activity">{line.replace('#### ', '')}</p>;
-      if (line.trim() === '---') return <hr key={i} />;
-      if (line.trim() !== '') return <p key={i} className="paragraph">{line}</p>;
+    return content.split("\n").map((line, i) => {
+      if (line.startsWith("# "))
+        return (
+          <p key={i} className="main-title">
+            {line.replace("# ", "")}
+          </p>
+        );
+      if (line.startsWith("## "))
+        return (
+          <p key={i} className="subheading">
+            {line.replace("## ", "")}
+          </p>
+        );
+      if (line.startsWith("### "))
+        return (
+          <p key={i} className="sub-subheading">
+            {line.replace("### ", "")}
+          </p>
+        );
+      if (line.startsWith("#### "))
+        return (
+          <p key={i} className="activity">
+            {line.replace("#### ", "")}
+          </p>
+        );
+      if (line.trim() === "---") return <hr key={i} />;
+      if (line.trim() !== "")
+        return (
+          <p key={i} className="paragraph">
+            {line}
+          </p>
+        );
       return null;
     });
   };
@@ -99,31 +124,28 @@ Now that we know how to count, let's see how we can compare numbers.
       <div className="content-header">
         <h2 className="content-topic">Introduction to Numbers</h2>
         <button className="icon-button" onClick={handleToggleEdit}>
-          {isEditing ? 'Save' : 'Edit'}
+          {isEditing ? "Save" : "Edit"}
         </button>
       </div>
-
-      <div className="content-box">
-        {isEditing ? (
-          <textarea
-            className="content-editor"
-            value={editedContent}
-            onChange={(e) => setEditedContent(e.target.value)}
-            rows={30}
-          />
-        ) : (
-          renderContent()
-        )}
-      </div>
+      {isEditing ? (
+        <textarea
+          className="content-editor"
+          value={editedContent}
+          onChange={(e) => setEditedContent(e.target.value)}
+          rows={30}
+        />
+      ) : (
+        <div className="content-box">{renderContent()}</div>
+      )}
 
       <div className="media-buttons">
-        <button className="btn-ppt" onClick={() => console.log('ppt')}>
+        <button className="btn-ppt" onClick={() => console.log("ppt")}>
           <FaFilePowerpoint className="btn-icon" /> PPT
         </button>
-        <button className="btn-video" onClick={() => console.log('video')}>
+        <button className="btn-video" onClick={() => console.log("video")}>
           <FaVideo className="btn-icon" /> Video
         </button>
-        <button className="btn-audio" onClick={() => console.log('audio')}>
+        <button className="btn-audio" onClick={() => console.log("audio")}>
           <FaVolumeUp className="btn-icon" /> Audio
         </button>
       </div>
