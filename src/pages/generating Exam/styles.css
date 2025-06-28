@@ -1,172 +1,105 @@
-/* الخلفية والصفحة العامة */
-.exam-page {
-  background-color: #f2f2f8;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+/* الأساس */
+body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box !important;
 }
 
-.exam-container {
-  background-color: white;
-  width: 60%;
-  max-width: 800px;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+.questions-page {
+  width: 100vh;
+  margin: 40px auto;
+  background-color: rgba(255, 255, 255, 0.8); /* شفاف */
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
+  font-family: 'Segoe UI', sans-serif;
 }
 
-/* العناوين الرئيسية */
-h2 {
+/* عنوان الصفحة */
+.questions-page h2 {
   text-align: center;
-  font-size: 24px;
-  font-weight: bold;
+  color: #4b0082; /* موف غامق */
+  margin-bottom: 30px;
 }
 
-/* حقل التوبيكس */
-.input-box {
+/* كل سؤال */
+.question-box {
+  background-color: #f9f5ff; /* بيضا مائلة للموف */
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(75, 0, 130, 0.1);
+}
+
+/* نص السؤال */
+.question-box p {
+  margin-bottom: 12px;
+  font-weight: bold;
+  font-size: 17px;
+  color: #333;
+}
+
+/* الاختيارات */
+.question-box ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 16px;
+}
+
+.question-box li {
+  margin: 6px 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background-color: #e6ddfa;
+  color: #333;
+  font-weight: 500;
+}
+
+/* الحقول في حالة التعديل */
+.question-box input[type="text"] {
   width: 100%;
-  height: 60px;
-  border: 1px solid #ffffff;
-  border-radius: 5px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.blank-input {
+  width: 200px;
+  padding: 8px;
+  border: 1px dashed #aaa;
+  border-radius: 6px;
+  background-color: #f3f3f3;
+  margin-top: 10px;
+}
+
+/* essay box */
+.essay-box {
+  width: 100%;
+  height: 100px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
   padding: 10px;
-  font-size: 16px;
-  background-color: #fafafa;
+  background-color: #f8f8f8;
+  resize: none;
 }
 
-/* قسم درجة الصعوبة */
-.difficulty-container {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.difficulty-item {
-  display: flex;
-  align-items: center;
-}
-
-.easy {
-  color: green;
-  margin-right: 5px;
-}
-.medium {
-  color: orange;
-  margin-right: 5px;
-}
-.hard {
-  color: red;
-  margin-right: 5px;
-}
-
-.percentage-input {
-  width: 50px;
-  text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-/* نوع الأسئلة */
-.question-type-container {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
-.question-type-container label {
-  margin-left: 5px;
-  font-weight: bold;
-  color: #007f5f;
-}
-
-/* الوقت والتقييم */
-.exam-details {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-}
-
-.small-input {
-  width: 80px;
-  text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 5px;
-}
-
-/* الأزرار */
-.button-container {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-button {
-  padding: 10px 20px;
+/* الزرار العام */
+.question-box button {
+  background-color: #d4af37; /* ذهبي */
+  color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 8px;
   font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
 }
 
-.drill {
-  background-color: #fdbb2d;
-  color: black;
-}
-
-.assignment {
-  background-color: #5a54f9;
-  color: white;
-}
-
-.exam {
-  background-color: #3f51b5;
-  color: white;
-}
-
-button:hover {
-  opacity: 0.8;
-}
-
-/* الريسبونسيف */
-@media (max-width: 1024px) {
-  .exam-container {
-    width: 80%;
-  }
-}
-
-@media (max-width: 768px) {
-  .exam-container {
-    width: 90%;
-    padding: 15px;
-  }
-  .difficulty-container {
-    flex-direction: column;
-    gap: 10px;
-  }
-  .exam-details {
-    flex-direction: column;
-    gap: 10px;
-  }
-  .button-container {
-    flex-direction: column;
-    align-items: center;
-  }
-}
-
-@media (max-width: 480px) {
-  h2 {
-    font-size: 20px;
-  }
-  .input-box {
-    height: 50px;
-    font-size: 14px;
-  }
-  .percentage-input, .small-input {
-    width: 60px;
-  }
+.question-box button:hover {
+  background-color: white;
+  color: #d4af37;
+  border: 1px solid #d4af37;
 }
