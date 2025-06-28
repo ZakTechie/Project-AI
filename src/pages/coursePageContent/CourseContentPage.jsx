@@ -109,13 +109,15 @@ const CourseContentPage = () => {
       // ✅ List item with bullet point
       if (trimmed.startsWith("*")) {
         return (
-          <ul key={i} className="list">
-            <li
-              dangerouslySetInnerHTML={{
-                __html: applyInlineStyles(trimmed.replace(/^\*\s*/, "")),
-              }}
-            />
-          </ul>
+          <>
+            <ul key={i} className="list">
+              <li
+                dangerouslySetInnerHTML={{
+                  __html: applyInlineStyles(trimmed.replace(/^\*\s*/, "")),
+                }}
+              />
+            </ul>
+          </>
         );
       }
 

@@ -41,6 +41,10 @@ body {
   margin-top: 20px;
 }
 
+.content-box p:not(:first-child) {
+  margin-top: 50px;
+}
+
 .main-title {
   font-size: 2em;
   color: #4a90e2;
