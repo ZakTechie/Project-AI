@@ -162,7 +162,13 @@ const Dashboard = () => {
             className="service-card"
             onClick={() => handleServiceClick("/exam-generator")}
           >
-            📄<p>Generate an exam/Assignment</p>
+            📄<p>Generate an Assignment</p>
+          </div>
+          <div
+            className="service-card"
+            onClick={() => handleServiceClick("/project-details")}
+          >
+            ⚗️<p>Generate Lesson activities</p>
           </div>
         </>
       );
