@@ -17,8 +17,8 @@ import SelectedProjectDetails from "./pages/SelectedProjectDetails/SelectedProje
 import Student from "./pages/Signup/student";
 import TsignUp from "./pages/Signup/Tsignup";
 import Exam from "./pages/generating Exam/ExamGenerator";
-import Assignment from "./pages/assignment/assignment";
 import ActivityShow from "./pages/activityShow/activityShow";
+import Assignment from "./pages/generate Assignment/assignment";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -43,11 +43,11 @@ function App() {
         <Route path="/project-details" element={<ProjectDetails />} />
         <Route
           path="/selected-project-details"
-          element={<SelectedProjectDetails />} />
-       <Route path="/exam" element={<Exam />} />
-       <Route path="/assignment" element={<Assignment />} />
-      <Route path="/activityShow" element={<ActivityShow />} />
-
+          element={<SelectedProjectDetails />}
+        />
+        <Route path="/exam" element={<Exam />} />
+        <Route path="/assignment" element={<Assignment />} />
+        <Route path="/activityShow" element={<ActivityShow />} />
       </Routes>
     </Router>
   );

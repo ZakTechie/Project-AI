@@ -14,7 +14,9 @@ const Dashboard = () => {
   const [selectedTitle, setSelectedTitle] = useState(null);
   const [title, setTitle] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [lesson, setlesson] = useState([]);
   const [index, setIndex] = useState(0);
+  const [contentModal, setContentModal] = useState("");
   const [newCourse, setNewCourse] = useState({
     courseName: "",
     courseCode: "",
@@ -91,6 +93,14 @@ const Dashboard = () => {
       );
       console.log("Fetched course plan:", response.data.data.teachingPlan);
       setTitle(response.data.data.teachingPlan);
+
+      const lessonResponse = await axios.get(
+        `http://localhost:3000/course/lessons/${index}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setlesson(lessonResponse.data.data);
       setExpandedCourse(index);
       setExpandedTopic(null);
       // optional: store coursePlan in state
@@ -156,10 +166,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleServiceClick = (path) => {
-    navigate(path);
-  };
-
   const handleServiceClickContent = async () => {
     const token = localStorage.getItem("token");
     try {
@@ -193,7 +199,7 @@ const Dashboard = () => {
           state: [
             response.data.data,
             title[index].LectureName,
-            response.data.id,
+            response.data._id,
           ],
         });
       });
@@ -207,6 +213,55 @@ const Dashboard = () => {
       console.error("❌ Error:", error);
     }
   };
+
+  const handleServiceClickAssignment = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      Swal.fire({
+        title: "Generating assignment...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await axios.post(
+        `http://localhost:3000/course/${expandedCourse}/create-assignment`,
+        title[index], // نفس شكل body اللي بتبعت بيه في createLessonContent
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Assignment created successfully!",
+        text: "The assignment has been saved.",
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => {
+        navigate("/assignment", {
+          state: [response.data.data, expandedCourse],
+        });
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to create assignment",
+        text: error?.response?.data?.message || "Please try again later.",
+      });
+      console.error("❌ Error:", error);
+    }
+  };
+
+  const openModel = (content) => {
+    setShowExamModal(true);
+    setContentModal(content);
+  };
   const getAvailableServices = () => {
     if (expandedTopic !== null) {
       return (
@@ -219,16 +274,9 @@ const Dashboard = () => {
           </div>
           <div
             className="service-card"
-            onClick={() => handleServiceClick("/assignment")}
+            onClick={() => handleServiceClickAssignment()}
           >
             📄<p>Generate an Assignment</p>
-          </div>
-
-          <div
-            className="service-card"
-            onClick={() => handleServiceClick("/activityShow")}
-          >
-            ⚗️<p>Generate Lesson activities</p>
           </div>
         </>
       );
@@ -245,14 +293,11 @@ const Dashboard = () => {
             ✏️<p>Generate a course plan</p>
           </div>
 
-          <div className="service-card" onClick={() => setShowExamModal(true)}>
+          <div className="service-card" onClick={() => openModel("exam")}>
             📄<p>Generate an exam</p>
           </div>
 
-          <div
-            className="service-card"
-            onClick={() => handleServiceClick("/activityShow")}
-          >
+          <div className="service-card" onClick={() => openModel("Activity")}>
             ⚗️<p>Generate course activities</p>
           </div>
         </>
@@ -446,50 +491,103 @@ const Dashboard = () => {
     );
     const finalExamData = {
       ...examData,
-      numberQuesetion: totalQuestions,
+      numOfQuestions: totalQuestions,
     };
 
-    Swal.fire({
-      title: "Generating Exam...",
-      allowOutsideClick: false,
-      didOpen: () => {
-        Swal.showLoading();
-      },
-    });
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `http://localhost:3000/course/${expandedCourse}/create-exam`,
-        finalExamData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
+    if (contentModal == "exam") {
       Swal.fire({
-        icon: "success",
-        title: "Exam generated successfully!",
-        showConfirmButton: false,
-        timer: 1500,
-      }).then(() => {
-        navigate("/exam", { state: [response.data.data, expandedCourse] });
+        title: "Generating Exam...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
       });
-    } catch (error) {
-      console.error("Error generating exam:", error);
+
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.post(
+          `http://localhost:3000/course/${expandedCourse}/create-exam`,
+          finalExamData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        Swal.fire({
+          icon: "success",
+          title: "Exam generated successfully!",
+          showConfirmButton: false,
+          timer: 1500,
+        }).then(() => {
+          navigate("/exam", { state: [response.data.data, expandedCourse] });
+        });
+      } catch (error) {
+        console.error("Error generating exam:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Failed to generate exam",
+          text: error?.response?.data?.message || "Please try again later.",
+        });
+      }
+    } else {
       Swal.fire({
-        icon: "error",
-        title: "Failed to generate exam",
-        text: error?.response?.data?.message || "Please try again later.",
+        title: "Generating Activity...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
       });
+
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.post(
+          `http://localhost:3000/course/${expandedCourse}/create-activities`,
+          finalExamData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        Swal.fire({
+          icon: "success",
+          title: "Activity generated successfully!",
+          showConfirmButton: false,
+          timer: 1500,
+        }).then(() => {
+          navigate("/activityShow", {
+            state: [response.data.data, expandedCourse],
+          });
+        });
+      } catch (error) {
+        console.error("Error generating activity:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Failed to generate activity",
+          text: error?.response?.data?.message || "Please try again later.",
+        });
+      }
     }
   };
 
-  // const handleViewCourse = (index) => {
-  //   console.log(title[index]);
-  // };
+  const handleViewCourse = (index) => {
+    const data = lesson.filter((item) => {
+      return item.LectureName == title[index].LectureName;
+    });
+
+    if (data.length != 0) navigate("/course-content", { state: [data[0]] });
+    else
+      Swal.fire({
+        icon: "info",
+        title: "No Lesson Content",
+        text: "There is no lesson content for this course yet.",
+        confirmButtonText: "OK",
+      });
+  };
+
   return (
     <div className="dashboard-container">
       <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
@@ -583,7 +681,7 @@ const Dashboard = () => {
                             <svg
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // handleViewCourse(j);
+                                handleViewCourse(j);
                               }}
                               xmlns="http://www.w3.org/2000/svg"
                               width="20"
@@ -768,7 +866,7 @@ const Dashboard = () => {
       {showExamModal && (
         <div className="modal-overlay">
           <div className="modal-box">
-            <h2 className="form-title">Generate Exam</h2>
+            <h2 className="form-title">Generate {contentModal}</h2>
 
             {/* Lessons (multi-select) */}
             {/* <div className="form-group">
@@ -799,9 +897,9 @@ const Dashboard = () => {
               <input
                 type="number"
                 min={0}
-                value={examData.time}
+                value={examData.allowedTime}
                 onChange={(e) =>
-                  setExamData({ ...examData, time: e.target.value })
+                  setExamData({ ...examData, allowedTime: e.target.value })
                 }
               />
             </div>

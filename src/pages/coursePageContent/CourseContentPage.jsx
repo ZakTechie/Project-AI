@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import "./CourseContentPage.css";
 import { FaFilePowerpoint, FaVideo, FaVolumeUp } from "react-icons/fa";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import axios from "axios";
 
 const CourseContentPage = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const DataContent = location.state;
   const [content, setContent] = useState("");
@@ -11,10 +14,10 @@ const CourseContentPage = () => {
   const [editedContent, setEditedContent] = useState("");
 
   useEffect(() => {
-    const courseContent = DataContent[0];
+    const courseContent = DataContent[0].content;
     setContent(courseContent);
     setEditedContent(courseContent);
-  }, []);
+  }, [DataContent]);
 
   const handleToggleEdit = () => {
     if (isEditing) setContent(editedContent);
@@ -135,7 +138,50 @@ const CourseContentPage = () => {
   };
   const handleSave = () => {
     const token = localStorage.getItem("token");
-    console.log({ content: editedContent });
+    // console.log({ content: editedContent });
+    // console.log(DataContent[0]._id);
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to save this lesson content?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, save it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Show loading spinner
+        Swal.fire({
+          title: "Saving...",
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
+        axios
+          .put(
+            `http://localhost:3000/course/${DataContent[0].courseId}/save-lesson-content/${DataContent[0]._id}`,
+            { content: editedContent },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          )
+          .then(() => {
+            Swal.fire("Saved!", "Lesson content has been saved.", "success");
+            navigate("/dashboard");
+          })
+          .catch((error) => {
+            Swal.fire(
+              "Error!",
+              error.response?.data?.message || "Something went wrong.",
+              "error"
+            );
+          });
+      }
+    });
   };
   return (
     <div className="course-content-container">

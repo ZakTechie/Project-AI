@@ -79,9 +79,100 @@ const CoursePlanPage = () => {
     }
   };
 
-  const handleActionClick = (type, weekIndex) => {
-    console.log(`${type} clicked for week ${rows[weekIndex].week}`);
+  const handleActionClick = async (type, weekIndex) => {
+    // console.log(`${type} clicked for week ${rows[weekIndex].week}`);
+    // console.log(type, rows[weekIndex].Week);
+    const token = localStorage.getItem("token");
+    try {
+      Swal.fire({
+        title: "Generating lesson content...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await axios.post(
+        `http://localhost:3000/course/${courseId}/createLessonContent`,
+        rows[weekIndex],
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Lesson content created successfully!",
+        text: "The lesson content has been saved.",
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => {
+        navigate("/course-content", {
+          state: [
+            response.data.data,
+            rows[weekIndex].LectureName,
+            response.data._id,
+          ],
+        });
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to create content",
+        text: error?.response?.data?.message || "Please try again later.",
+      });
+
+      console.error("❌ Error:", error);
+    }
+
     // يمكن هنا تفعيل مودال أو انتقال حسب الزر
+  };
+
+  const handleActionClick1 = async (type, weekIndex) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      Swal.fire({
+        title: "Generating assignment...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await axios.post(
+        `http://localhost:3000/course/${courseId}/create-assignment`,
+        rows[weekIndex],
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Assignment created successfully!",
+        text: "The assignment has been saved.",
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => {
+        navigate("/assignment", {
+          state: [response.data.data, courseId],
+        });
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to create assignment",
+        text: error?.response?.data?.message || "Please try again later.",
+      });
+      console.error("❌ Error:", error);
+    }
   };
 
   return (
@@ -163,15 +254,9 @@ const CoursePlanPage = () => {
                     </button>
                     <button
                       className="btn-assignment"
-                      onClick={() => handleActionClick("assignment", idx)}
+                      onClick={() => handleActionClick1("assignment", idx)}
                     >
                       Assignment
-                    </button>
-                    <button
-                      className="btn-activity"
-                      onClick={() => handleActionClick("activity", idx)}
-                    >
-                      Activity
                     </button>
                   </div>
                 </td>

@@ -1,8 +1,8 @@
 .course-content-container {
   padding: 20px;
-width: 100%;
+  width: 98vw;
   box-sizing: border-box;
-    margin: auto;
+  margin: auto;
 }
 
 /* .content-header {
@@ -22,15 +22,13 @@ width: 100%;
   transition: all 0.3s ease;
   margin-top: 10px;
 }
-.edit-button:hover  {
-
-background-color: white;
+.edit-button:hover {
+  background-color: white;
   color: #d4af37;
   border: 1px solid #d4af37;
 }
 
 .content-editor {
-  
   padding: 12px;
   font-family: monospace;
   font-size: 15px;
@@ -68,4 +66,30 @@ background-color: white;
 .paragraph {
   margin: 8px 0;
   line-height: 1.6;
+}
+
+.project-card {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 8px;
+}
+
+.project-input,
+.project-textarea {
+  width: 93vw;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.edit-button {
+  background-color: #007bff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
