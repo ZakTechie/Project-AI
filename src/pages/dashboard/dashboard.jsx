@@ -297,7 +297,7 @@ const Dashboard = () => {
             📄<p>Generate an exam</p>
           </div>
 
-          <div className="service-card" onClick={() => openModel("Activity")}>
+          <div className="service-card" onClick={() => handleCreateActivity()}>
             ⚗️<p>Generate course activities</p>
           </div>
         </>
@@ -306,6 +306,46 @@ const Dashboard = () => {
     return null;
   };
 
+  const handleCreateActivity = async () => {
+    const token = localStorage.getItem("token");
+    Swal.fire({
+      title: "Generating Activity...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const response = await axios.post(
+        `http://localhost:3000/course/${expandedCourse}/create-activities`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Activity generated successfully!",
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => {
+        navigate("/activityShow", {
+          state: [response.data.data, expandedCourse],
+        });
+      });
+    } catch (error) {
+      console.error("Error generating activity:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Failed to generate activity",
+        text: error?.response?.data?.message || "Please try again later.",
+      });
+    }
+  };
   const handleMakePlan = async () => {
     if (!planData.numberOfWeeks || !planData.lecsPerWeek) {
       Swal.fire({
@@ -528,45 +568,6 @@ const Dashboard = () => {
         Swal.fire({
           icon: "error",
           title: "Failed to generate exam",
-          text: error?.response?.data?.message || "Please try again later.",
-        });
-      }
-    } else {
-      Swal.fire({
-        title: "Generating Activity...",
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.post(
-          `http://localhost:3000/course/${expandedCourse}/create-activities`,
-          finalExamData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        Swal.fire({
-          icon: "success",
-          title: "Activity generated successfully!",
-          showConfirmButton: false,
-          timer: 1500,
-        }).then(() => {
-          navigate("/activityShow", {
-            state: [response.data.data, expandedCourse],
-          });
-        });
-      } catch (error) {
-        console.error("Error generating activity:", error);
-        Swal.fire({
-          icon: "error",
-          title: "Failed to generate activity",
           text: error?.response?.data?.message || "Please try again later.",
         });
       }
