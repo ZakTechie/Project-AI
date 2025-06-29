@@ -6,13 +6,15 @@ body {
 }
 
 .questions-page {
-  width: 100vh;
+  margin-left: 25%;
+  margin-right: 25%;
+  width: 65vw;
   margin: 40px auto;
   background-color: rgba(255, 255, 255, 0.8); /* شفاف */
   padding: 30px;
   border-radius: 16px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.15);
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Segoe UI", sans-serif;
 }
 
 /* عنوان الصفحة */
@@ -102,4 +104,20 @@ body {
   background-color: white;
   color: #d4af37;
   border: 1px solid #d4af37;
+}
+
+.save-all-button {
+  padding: 10px 25px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.save-all-button:hover {
+  background-color: #0056b3;
 }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./dashboard.css";
@@ -15,7 +14,7 @@ const Dashboard = () => {
   const [selectedTitle, setSelectedTitle] = useState(null);
   const [title, setTitle] = useState([]);
   const [showModal, setShowModal] = useState(false);
-
+  const [index, setIndex] = useState(0);
   const [newCourse, setNewCourse] = useState({
     courseName: "",
     courseCode: "",
@@ -31,17 +30,16 @@ const Dashboard = () => {
   });
 
   const [showExamModal, setShowExamModal] = useState(false);
-const [examData, setExamData] = useState({
-  lessons: [],
-  time: "",
-  score: "",
-  easy: "",
-  medium: "",
-  hard: "",
-  questionTypes: [],
-  percentages: {},
-});
-
+  const [examData, setExamData] = useState({
+    // lessons: [],
+    allowedTime: "",
+    score: "",
+    easy: "",
+    median: "",
+    hard: "",
+    questionType: [],
+    percentages: {},
+  });
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -84,7 +82,7 @@ const [examData, setExamData] = useState({
       const token = localStorage.getItem("token");
 
       const response = await axios.get(
-        `http://localhost:3000/course/coursePlan/${index}`,
+        `http://localhost:3000/course/${index}/coursePlan`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -112,7 +110,7 @@ const [examData, setExamData] = useState({
   const toggleTopic = (index) => {
     setExpandedTopic(expandedTopic === index ? null : index);
     setSelectedTitle(expandedTopic === index ? null : index);
-    console.log(index);
+    setIndex(index);
   };
 
   const handleServiceClick1 = async (path) => {
@@ -129,7 +127,7 @@ const [examData, setExamData] = useState({
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/course/createSyllabus/${expandedCourse}`,
+        `http://localhost:3000/course/${expandedCourse}/createSyllabus`,
         {},
         {
           headers: {
@@ -162,23 +160,69 @@ const [examData, setExamData] = useState({
     navigate(path);
   };
 
+  const handleServiceClickContent = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      Swal.fire({
+        title: "Generating lesson content...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await axios.post(
+        `http://localhost:3000/course/${expandedCourse}/createLessonContent`,
+        title[index],
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Lesson content created successfully!",
+        text: "The lesson content has been saved.",
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => {
+        navigate("/course-content", {
+          state: [
+            response.data.data,
+            title[index].LectureName,
+            response.data.id,
+          ],
+        });
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed to create content",
+        text: error?.response?.data?.message || "Please try again later.",
+      });
+
+      console.error("❌ Error:", error);
+    }
+  };
   const getAvailableServices = () => {
     if (expandedTopic !== null) {
       return (
         <>
           <div
             className="service-card"
-            onClick={() => handleServiceClick("/course-content")}
+            onClick={() => handleServiceClickContent()}
           >
             👥<p>Generate a lesson content</p>
           </div>
           <div
-  className="service-card"
-  onClick={() => handleServiceClick("/assignment")}
->
-  📄<p>Generate an Assignment</p>
-</div>
-
+            className="service-card"
+            onClick={() => handleServiceClick("/assignment")}
+          >
+            📄<p>Generate an Assignment</p>
+          </div>
 
           <div
             className="service-card"
@@ -201,13 +245,9 @@ const [examData, setExamData] = useState({
             ✏️<p>Generate a course plan</p>
           </div>
 
-          <div
-  className="service-card"
-  onClick={() => setShowExamModal(true)}
->
-  📄<p>Generate an exam</p>
-</div>
-
+          <div className="service-card" onClick={() => setShowExamModal(true)}>
+            📄<p>Generate an exam</p>
+          </div>
 
           <div
             className="service-card"
@@ -243,7 +283,7 @@ const [examData, setExamData] = useState({
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `http://localhost:3000/course/createPlan/${expandedCourse}`,
+        `http://localhost:3000/course/${expandedCourse}/createPlan`,
         planData,
         {
           headers: {
@@ -258,7 +298,9 @@ const [examData, setExamData] = useState({
         showConfirmButton: false,
         timer: 1500,
       });
-      navigate("/plan", { state: [response.data.data, expandedCourse] }); // send the generated plan to next page
+      navigate("/plan", {
+        state: [response.data.data.teachingPlan, expandedCourse],
+      }); // send the generated plan to next page
     } catch (error) {
       console.error("Error generating plan:", error);
       Swal.fire({
@@ -356,6 +398,98 @@ const [examData, setExamData] = useState({
     }
   };
 
+  const handleShowCoursePlan = async () => {
+    Swal.fire({
+      title: "Showing Plan...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `http://localhost:3000/course/${expandedCourse}/coursePlan`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "processing successfully!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      navigate("/plan", {
+        state: [response.data.data.teachingPlan, expandedCourse],
+      }); // send the generated plan to next page
+    } catch (error) {
+      console.error("Error show plan:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Failed to show plan",
+        text: error?.response?.data?.message || "Please try again later.",
+      });
+    }
+  };
+
+  const handleGenerateExam = async () => {
+    setShowExamModal(false);
+    const totalQuestions = Object.values(examData.percentages).reduce(
+      (acc, prev) => acc + parseInt(prev),
+      0
+    );
+    const finalExamData = {
+      ...examData,
+      numberQuesetion: totalQuestions,
+    };
+
+    Swal.fire({
+      title: "Generating Exam...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.post(
+        `http://localhost:3000/course/${expandedCourse}/create-exam`,
+        finalExamData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Exam generated successfully!",
+        showConfirmButton: false,
+        timer: 1500,
+      }).then(() => {
+        navigate("/exam", { state: [response.data.data, expandedCourse] });
+      });
+    } catch (error) {
+      console.error("Error generating exam:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Failed to generate exam",
+        text: error?.response?.data?.message || "Please try again later.",
+      });
+    }
+  };
+
+  // const handleViewCourse = (index) => {
+  //   console.log(title[index]);
+  // };
   return (
     <div className="dashboard-container">
       <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
@@ -382,43 +516,49 @@ const [examData, setExamData] = useState({
                     <span>
                       {course.courseName} ({course.courseCode.slice(0, 6)})
                     </span>
-                    <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-  <svg
-    onClick={(e) => {
-      e.stopPropagation();
-      navigate(`/plan`, { state: { planId: course.planId } });
-    }}
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    fill="white"
-    viewBox="0 0 24 24"
-    style={{ cursor: "pointer" }}
-    title="الخطة"
-  >
-    <path d="M3 4v16h18V4H3zm16 14H5V6h14v12zM7 8h10v2H7V8zm0 4h7v2H7v-2z" />
-  </svg>
+                    <span
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      <svg
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          return handleShowCoursePlan();
+                        }}
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="white"
+                        viewBox="0 0 24 24"
+                        style={{ cursor: "pointer" }}
+                        title="الخطة"
+                      >
+                        <path d="M3 4v16h18V4H3zm16 14H5V6h14v12zM7 8h10v2H7V8zm0 4h7v2H7v-2z" />
+                      </svg>
 
-  <svg
-    onClick={(e) => {
-      e.stopPropagation();
-      handleDeleteCourse(course.courseId);
-    }}
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    fill="white"
-    viewBox="0 0 16 16"
-    style={{ cursor: "pointer" }}
-    title="حذف"
-  >
-    <path d="M5.5 5.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0v-6a.5.5 0 0 1 .5-.5zm2.5.5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0v-6zm1.5-.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0v-6a.5.5 0 0 1 .5-.5z" />
-    <path
-      fillRule="evenodd"
-      d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1 0-2h3.086a1 1 0 0 1 .707.293l.707.707h2.586l.707-.707A1 1 0 0 1 9.414 1H12.5a1 1 0 0 1 1 1v1h1a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1h-11z"
-    />
-  </svg>
-</span>
+                      <svg
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCourse(course.courseId);
+                        }}
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        fill="white"
+                        viewBox="0 0 16 16"
+                        style={{ cursor: "pointer" }}
+                        title="حذف"
+                      >
+                        <path d="M5.5 5.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0v-6a.5.5 0 0 1 .5-.5zm2.5.5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0v-6zm1.5-.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0v-6a.5.5 0 0 1 .5-.5z" />
+                        <path
+                          fillRule="evenodd"
+                          d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1 0-2h3.086a1 1 0 0 1 .707.293l.707.707h2.586l.707-.707A1 1 0 0 1 9.414 1H12.5a1 1 0 0 1 1 1v1h1a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1h-11z"
+                        />
+                      </svg>
+                    </span>
                   </span>
 
                   {expandedCourse === course.courseId && (
@@ -440,34 +580,36 @@ const [examData, setExamData] = useState({
                             }
                           >
                             {topic.LectureName}
-                           <svg
-  onClick={(e) => {
-    e.stopPropagation();
-    // handleViewCourse(course.courseId); 
-  }}
-  xmlns="http://www.w3.org/2000/svg"
-  width="20"
-  height="20"
-  fill="none"
-  viewBox="0 0 24 24"
-  stroke="currentColor"
-  strokeWidth="2"
-  style={{ cursor: "pointer", marginLeft: "8px", color: "#dcdcdc" }}
-  title="عرض"
->
-  <path
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-  />
-  <path
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"
-  />
-</svg>
-
-
+                            <svg
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // handleViewCourse(j);
+                              }}
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="20"
+                              height="20"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              style={{
+                                cursor: "pointer",
+                                marginLeft: "8px",
+                                color: "#dcdcdc",
+                              }}
+                              title="عرض"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                              />
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z"
+                              />
+                            </svg>
                           </li>
                         ) : (
                           <li
@@ -585,6 +727,7 @@ const [examData, setExamData] = useState({
               <label className="form-label">Number of Weeks</label>
               <input
                 type="number"
+                min={0}
                 name="numberOfWeeks"
                 value={planData.numberOfWeeks}
                 onChange={(e) =>
@@ -597,6 +740,7 @@ const [examData, setExamData] = useState({
               <label className="form-label">Lectures per Week</label>
               <input
                 type="number"
+                min={0}
                 name="lecsPerWeek"
                 value={planData.lecsPerWeek}
                 onChange={(e) =>
@@ -622,144 +766,150 @@ const [examData, setExamData] = useState({
       )}
 
       {showExamModal && (
-  <div className="modal-overlay">
-    <div className="modal-box">
-      <h2 className="form-title">Generate Exam</h2>
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <h2 className="form-title">Generate Exam</h2>
 
-      {/* Lessons (multi-select) */}
-      <div className="form-group">
-        <label className="form-label">Lessons</label>
-        <select
-          multiple
-          onChange={(e) =>
-            setExamData((prev) => ({
-              ...prev,
-              lessons: Array.from(e.target.selectedOptions, (opt) => opt.value),
-            }))
-          }
-        >
-          {title.map((lesson, index) => (
-            <option key={index} value={lesson.LectureName}>
-              {lesson.LectureName}
-            </option>
-          ))}
-        </select>
-      </div>
+            {/* Lessons (multi-select) */}
+            {/* <div className="form-group">
+              <label className="form-label">Lessons</label>
+              <select
+                multiple
+                onChange={(e) =>
+                  setExamData((prev) => ({
+                    ...prev,
+                    lessons: Array.from(
+                      e.target.selectedOptions,
+                      (opt) => opt.value
+                    ),
+                  }))
+                }
+              >
+                {title.map((lesson, index) => (
+                  <option key={index} value={lesson.LectureName}>
+                    {lesson.LectureName}
+                  </option>
+                ))}
+              </select>
+            </div> */}
 
-      {/* Time */}
-      <div className="form-group">
-        <label className="form-label">Time (minutes)</label>
-        <input
-          type="number"
-          value={examData.time}
-          onChange={(e) =>
-            setExamData({ ...examData, time: e.target.value })
-          }
-        />
-      </div>
+            {/* Time */}
+            <div className="form-group">
+              <label className="form-label">Time (minutes)</label>
+              <input
+                type="number"
+                min={0}
+                value={examData.time}
+                onChange={(e) =>
+                  setExamData({ ...examData, time: e.target.value })
+                }
+              />
+            </div>
 
-      {/* Score */}
-      <div className="form-group">
-        <label className="form-label">Score</label>
-        <input
-          type="number"
-          value={examData.score}
-          onChange={(e) =>
-            setExamData({ ...examData, score: e.target.value })
-          }
-        />
-      </div>
+            {/* Score */}
+            <div className="form-group">
+              <label className="form-label">Score</label>
+              <input
+                type="number"
+                min={0}
+                value={examData.score}
+                onChange={(e) =>
+                  setExamData({ ...examData, score: e.target.value })
+                }
+              />
+            </div>
 
-      {/* Degree of difficulty */}
-      <div className="form-group">
-        <label className="form-label">Degree of Difficulty (%)</label>
-        <input
-          type="number"
-          placeholder="Easy"
-          value={examData.easy}
-          onChange={(e) =>
-            setExamData({ ...examData, easy: e.target.value })
-          }
-        />
-        <input
-          type="number"
-          placeholder="Medium"
-          value={examData.medium}
-          onChange={(e) =>
-            setExamData({ ...examData, medium: e.target.value })
-          }
-        />
-        <input
-          type="number"
-          placeholder="Hard"
-          value={examData.hard}
-          onChange={(e) =>
-            setExamData({ ...examData, hard: e.target.value })
-          }
-        />
-      </div>
+            {/* Degree of difficulty */}
+            <div className="form-group">
+              <label className="form-label">Degree of Difficulty (%)</label>
+              <input
+                type="number"
+                min={0}
+                placeholder="Easy"
+                value={examData.easy}
+                onChange={(e) =>
+                  setExamData({ ...examData, easy: e.target.value })
+                }
+              />
+              <input
+                type="number"
+                min={0}
+                placeholder="Medium"
+                value={examData.medium}
+                onChange={(e) =>
+                  setExamData({ ...examData, median: e.target.value })
+                }
+              />
+              <input
+                type="number"
+                min={0}
+                placeholder="Hard"
+                value={examData.hard}
+                onChange={(e) =>
+                  setExamData({ ...examData, hard: e.target.value })
+                }
+              />
+            </div>
 
-      {/* Type of questions */}
-      <div className="form-group">
-        <label className="form-label">Type of Questions</label>
-        {["MCQ", "Fill the blank", "Essay"].map((type) => (
-          <label key={type} className="check-radio">
-            <input style={{ width: "50px" }}
-              type="checkbox"
-              checked={examData.questionTypes.includes(type)}
-              onChange={(e) => {
-                const updatedTypes = examData.questionTypes.includes(type)
-                  ? examData.questionTypes.filter((t) => t !== type)
-                  : [...examData.questionTypes, type];
-                setExamData({ ...examData, questionTypes: updatedTypes });
-              }}
-            />
-            {type}
-            <input  style={{ width: "50%" }}
-              type="number"
-              placeholder="%"
-              value={examData.percentages[type] || ""}
-              onChange={(e) =>
-                setExamData({
-                  ...examData,
-                  percentages: {
-                    ...examData.percentages,
-                    [type]: e.target.value,
-                  },
-                })
-              }
-              className="inline-percentage-input"
-            />
-          </label>
-        ))}
-      </div>
+            {/* Type of questions */}
+            <div className="form-group">
+              <label className="form-label">Type of Questions</label>
+              {["MCQ", "Fill the blank", "Essay"].map((type) => (
+                <label key={type} className="check-radio">
+                  <input
+                    style={{ width: "50px" }}
+                    type="checkbox"
+                    checked={examData.questionType.includes(type)}
+                    onChange={(e) => {
+                      e.preventDefault();
+                      const updatedTypes = examData.questionType.includes(type)
+                        ? examData.questionType.filter((t) => t !== type)
+                        : [...examData.questionType, type];
+                      setExamData({ ...examData, questionType: updatedTypes });
+                    }}
+                  />
+                  {type}
+                  <input
+                    style={{ width: "50%" }}
+                    type="number"
+                    min={0}
+                    placeholder=""
+                    value={examData.percentages[type] || ""}
+                    onChange={(e) =>
+                      setExamData({
+                        ...examData,
+                        percentages: {
+                          ...examData.percentages,
+                          [type]: e.target.value,
+                        },
+                      })
+                    }
+                    className="inline-percentage-input"
+                  />
+                </label>
+              ))}
+            </div>
 
-      <div className="modal-actions">
-       <button
-  className="gold-button"
-  onClick={() => {
-    console.log("Exam data: ", examData);
-    setShowExamModal(false);
-    navigate("/exam", { state: examData }); // هنا بنروح للصفحة الجديدة ونبعت البيانات
-  }}
->
-  Generate
-</button>
+            <div className="modal-actions">
+              <button
+                className="gold-button"
+                onClick={() => {
+                  handleGenerateExam();
+                }}
+              >
+                Generate
+              </button>
 
-        <button
-          className="gold-button"
-          onClick={() => setShowExamModal(false)}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-
-
-
+              <button
+                className="gold-button"
+                onClick={() => setShowExamModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

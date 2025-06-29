@@ -105,7 +105,7 @@ function SyllabusPage() {
 
     try {
       await axios.post(
-        `http://localhost:3000/course/savesyllabus/${syllabusDataID}`,
+        `http://localhost:3000/course/${syllabusDataID}/savesyllabus`,
         {
           syllabus: {
             topics: syllabus.map((data) => ({

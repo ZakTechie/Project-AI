@@ -7,9 +7,10 @@ const CoursePlanPage = () => {
   const [_, setIsLoggedIn] = useState(true);
   const location = useLocation();
   const coursePlan = location.state[0];
+
   const courseId = location.state[1];
   const navigate = useNavigate();
-  const [rows, setRows] = useState(coursePlan.teachingPlan);
+  const [rows, setRows] = useState(coursePlan);
 
   const swapSubtopics = (weekIndex1, subIndex1, weekIndex2, subIndex2) => {
     const updated = [...rows];
@@ -49,7 +50,7 @@ const CoursePlanPage = () => {
 
     try {
       await axios.put(
-        `http://localhost:3000/course/savePlan/${courseId}`,
+        `http://localhost:3000/course/${courseId}/savePlan`,
         { teachingPlan: rows },
         {
           headers: {
