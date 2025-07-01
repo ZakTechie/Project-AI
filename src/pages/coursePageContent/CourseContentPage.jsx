@@ -12,6 +12,7 @@ const CourseContentPage = () => {
   const [content, setContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editedContent, setEditedContent] = useState("");
+  const role = localStorage.getItem("role");
 
   useEffect(() => {
     const courseContent = DataContent[0].content;
@@ -187,7 +188,11 @@ const CourseContentPage = () => {
     <div className="course-content-container">
       <div className="content-header">
         <h2 className="content-topic">{DataContent[1]}</h2>
-        <button className="icon-button" onClick={handleToggleEdit}>
+        <button
+          className="icon-button"
+          style={{ display: role == "teacher" ? "block" : "none" }}
+          onClick={handleToggleEdit}
+        >
           {isEditing ? "Save" : "Edit"}
         </button>
       </div>
@@ -215,10 +220,23 @@ const CourseContentPage = () => {
       </div>
       <button
         className="save-all-button"
-        style={{ display: "block", margin: "20px auto" }}
+        style={{
+          display: role == "teacher" ? "block" : "none",
+          margin: "20px auto",
+        }}
         onClick={() => handleSave()}
       >
         Save In DataBase
+      </button>
+      <button
+        className="save-all-button"
+        style={{
+          display: role == "student" ? "block" : "none",
+          margin: "20px auto",
+        }}
+        onClick={() => navigate("/STdashboard")}
+      >
+        Back To Dashboard
       </button>
     </div>
   );

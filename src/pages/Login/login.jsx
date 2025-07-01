@@ -5,6 +5,7 @@ import "./Login.css";
 import Navbar from "../../components/Navbar";
 import axios from "axios";
 import Swal from "sweetalert2";
+import icon from "../../assets/icon.svg";
 
 function Login({ setIsLoggedIn }) {
   const [email, setEmail] = useState("");
@@ -33,6 +34,7 @@ function Login({ setIsLoggedIn }) {
         const { role } = response.data.data;
         // تخزين التوكن والمستخدم
         localStorage.setItem("token", access_token);
+        localStorage.setItem("role", role);
 
         Swal.fire({
           icon: "success",
@@ -42,9 +44,8 @@ function Login({ setIsLoggedIn }) {
         });
 
         setIsLoggedIn(true);
-        console.log(role);
-
-        navigate("/dashboard", { replace: true });
+        if (role == "teacher") navigate("/dashboard", { replace: true });
+        else navigate("/STdashboard", { replace: true });
       } else {
         Swal.fire({
           icon: "error",
@@ -65,6 +66,7 @@ function Login({ setIsLoggedIn }) {
   return (
     <div className="login-container">
       <Navbar />
+      <img src={icon} alt="logo" width="100px" />
       <h2 className="login-title">Login</h2>
       <form className="login-form" onSubmit={handleSubmit}>
         <label>Email</label>

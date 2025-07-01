@@ -1,10 +1,13 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Navbar.css";
-
+import icon from "../assets/icon.svg";
 function Navbar({ isLoggedIn, setIsLoggedIn }) {
   const navigate = useNavigate(); // استخدام useNavigate للتوجيه بعد الـ logout
   const location = useLocation();
-  const isSpecialPage = location.pathname === "/dashboard";
+  const isSpecialPage =
+    location.pathname === "/dashboard" ||
+    location.pathname === "/STdashboard" ||
+    location.pathname === "/output";
   const handleLogout = () => {
     setIsLoggedIn(false); // تسجيل الخروج
     navigate("/"); // التوجيه إلى الصفحة الرئيسية بعد الخروج
@@ -15,7 +18,11 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
       <ul className={isSpecialPage ? "nav-links-special" : "nav-links"}>
         <li>
           {!isLoggedIn && (
-            <Link to={isLoggedIn ? "/dashboard" : "/"}>Home</Link>
+            <Link to={isLoggedIn ? "/dashboard" : "/"}>
+              <div style={{ width: "30px", marginRight: "15px" }}>
+                <img src={icon} alt="home" style={{ maxWidth: "100%" }} />
+              </div>
+            </Link>
           )}
         </li>
         {isLoggedIn ? (

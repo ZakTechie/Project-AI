@@ -24,7 +24,7 @@ const Dashboard = () => {
     subdomain: "",
     level: "",
   });
-
+  const [idCourseFirst, setIdCourseFirst] = useState(null);
   const [showPlanModal, setShowPlanModal] = useState(false);
   const [planData, setPlanData] = useState({
     numberOfWeeks: "",
@@ -66,7 +66,7 @@ const Dashboard = () => {
       }
     };
     fetchCourses();
-  }, []);
+  }, [idCourseFirst]);
 
   // const toggleCourse = (index) => {
   //   setExpandedCourse(expandedCourse === index ? null : index);
@@ -437,7 +437,7 @@ const Dashboard = () => {
             level: "",
           });
           setShowModal(false);
-
+          setIdCourseFirst(response.data.data._id);
           Swal.fire({
             icon: "success",
             title: "Course added successfully!",

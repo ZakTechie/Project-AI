@@ -19,6 +19,8 @@ import TsignUp from "./pages/Signup/Tsignup";
 import Exam from "./pages/generating Exam/ExamGenerator";
 import ActivityShow from "./pages/activityShow/activityShow";
 import Assignment from "./pages/generate Assignment/assignment";
+import StudentDashboard from "./pages/dashboard/studentDashoard";
+import OutputPage from "./pages/output-student/output";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -37,6 +39,12 @@ function App() {
           path="/dashboard"
           element={isLoggedIn ? <Dashboard /> : <Navigate to="/login" />}
         />
+
+        <Route
+          path="/STdashboard"
+          element={isLoggedIn ? <StudentDashboard /> : <Navigate to="/login" />}
+        />
+
         <Route path="/syllabus" element={<SyllabusPage />} />
         <Route path="/plan" element={<CoursePlan />} />
         <Route path="/course-content" element={<CourseContentPage />} />
@@ -48,6 +56,7 @@ function App() {
         <Route path="/exam" element={<Exam />} />
         <Route path="/assignment" element={<Assignment />} />
         <Route path="/activityShow" element={<ActivityShow />} />
+        <Route path="/output" element={<OutputPage />} />
       </Routes>
     </Router>
   );

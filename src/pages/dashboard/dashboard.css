@@ -8,7 +8,7 @@
 
 /* Sidebar */
 .sidebar {
-  height: fit-content ; 
+  height: fit-content;
   min-height: 1000px;
   min-width: 300px;
   background-color: #7c74d0;
@@ -217,7 +217,7 @@
 }
 
 .check-radio {
-  display: flex !important; 
+  display: flex !important;
   justify-content: flex-start;
   align-items: center;
   gap: 5px;
@@ -235,7 +235,6 @@
   background: #7c74d0;
   color: white;
 }
-
 
 /* Nested List Styling */
 .sidebar ul ul {
@@ -351,6 +350,7 @@
   color: white;
   border-radius: 10px;
   transition: none; /* إيقاف تأثير الانتقال */
+  padding: 12px;
 }
 
 .gold-button {
