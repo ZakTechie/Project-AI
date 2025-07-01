@@ -106,11 +106,11 @@ const Dashboard = () => {
       // optional: store coursePlan in state
     } catch (error) {
       console.error("Error fetching course plan:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Failed to fetch course plan",
-        text: error?.response?.data?.message || "Please try again later.",
-      });
+      // Swal.fire({
+      //   icon: "error",
+      //   title: "Failed to fetch course plan",
+      //   text: error?.response?.data?.message || "Please try again later.",
+      // });
       setExpandedCourse(index);
       setExpandedTopic(null);
       setTitle([]);
