@@ -51,7 +51,7 @@ export default function ExamPage() {
   return (
     <div className="output-page">
       {/* Sidebar */}
-      <div className="sidebar">
+      <div className="sidebar" style={{ maxWidth: "400px" }}>
         <h2 style={{ color: "black" }}>📌 Selected:</h2>
         <button
           style={{ display: "block" }}

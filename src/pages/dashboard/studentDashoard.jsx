@@ -126,45 +126,47 @@ const StudentDashboard = () => {
         title[selectedTopicIndex]?.Subtopics[selectedSubTopicIndex];
 
       // إرسال البيانات للسيرفر
-      const response = await axios.post(url, body, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      // عرض SweetAlert للنجاح
-      Swal.fire({
-        icon: "success",
-        title: "Completed Successfully",
-        text: "Now will navigate to applicable page ...",
-        timer: 1500,
-        showConfirmButton: false,
-      });
-
-      // التنقل بعد نجاح الإرسال
-      if (serviceName === "✏️ Drill") {
-        navigate("/output-drill", {
-          state: {
-            serviceName,
-            courseName,
-            coursCode,
-            topic,
-            lesson,
-            result: response.data.data || "No result returned.",
+      const response = await axios
+        .post(url, body, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
+        })
+        .then(() => {
+          // عرض SweetAlert للنجاح
+          Swal.fire({
+            icon: "success",
+            title: "Completed Successfully",
+            text: "Now will navigate to applicable page ...",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+          // التنقل بعد نجاح الإرسال
+          if (serviceName === "✏️ Drill") {
+            navigate("/output-drill", {
+              state: {
+                serviceName,
+                courseName,
+                coursCode,
+                topic,
+                lesson,
+                result: response.data.data || "No result returned.",
+              },
+            });
+          } else {
+            navigate("/output", {
+              state: {
+                serviceName,
+                courseName,
+                coursCode,
+                topic,
+                lesson,
+                result: response.data.data || "No result returned.",
+              },
+            });
+          }
         });
-      } else {
-        navigate("/output", {
-          state: {
-            serviceName,
-            courseName,
-            coursCode,
-            topic,
-            lesson,
-            result: response.data.data || "No result returned.",
-          },
-        });
-      }
     } catch (error) {
       // عرض SweetAlert للخطأ
       Swal.fire({
