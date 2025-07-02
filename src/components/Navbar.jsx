@@ -7,7 +7,8 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
   const isSpecialPage =
     location.pathname === "/dashboard" ||
     location.pathname === "/STdashboard" ||
-    location.pathname === "/output";
+    location.pathname === "/output" ||
+    location.pathname === "/output-drill";
   const handleLogout = () => {
     setIsLoggedIn(false); // تسجيل الخروج
     navigate("/"); // التوجيه إلى الصفحة الرئيسية بعد الخروج

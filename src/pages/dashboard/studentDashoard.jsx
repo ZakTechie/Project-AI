@@ -142,16 +142,29 @@ const StudentDashboard = () => {
       });
 
       // التنقل بعد نجاح الإرسال
-      navigate("/output", {
-        state: {
-          serviceName,
-          courseName,
-          coursCode,
-          topic,
-          lesson,
-          result: response.data.data || "No result returned.",
-        },
-      });
+      if (serviceName === "✏️ Drill") {
+        navigate("/output-drill", {
+          state: {
+            serviceName,
+            courseName,
+            coursCode,
+            topic,
+            lesson,
+            result: response.data.data || "No result returned.",
+          },
+        });
+      } else {
+        navigate("/output", {
+          state: {
+            serviceName,
+            courseName,
+            coursCode,
+            topic,
+            lesson,
+            result: response.data.data || "No result returned.",
+          },
+        });
+      }
     } catch (error) {
       // عرض SweetAlert للخطأ
       Swal.fire({

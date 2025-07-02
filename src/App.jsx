@@ -21,6 +21,7 @@ import ActivityShow from "./pages/activityShow/activityShow";
 import Assignment from "./pages/generate Assignment/assignment";
 import StudentDashboard from "./pages/dashboard/studentDashoard";
 import OutputPage from "./pages/output-student/output";
+import ExamPage from "./pages/drill/ExamPage";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -57,6 +58,7 @@ function App() {
         <Route path="/assignment" element={<Assignment />} />
         <Route path="/activityShow" element={<ActivityShow />} />
         <Route path="/output" element={<OutputPage />} />
+        <Route path="/output-drill" element={<ExamPage />} />
       </Routes>
     </Router>
   );
